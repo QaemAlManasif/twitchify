@@ -1,0 +1,21 @@
+{
+	"name": "twitchify-remotion",
+	"private": true,
+	"description": "Remotion project for Twitchify marketing: marketplace thumbnails (stills) and the promo video",
+	"scripts": {
+		"studio": "remotion studio src/index.ts",
+		"shots": "python shots.py",
+		"thumbs": "remotion still src/index.ts thumb-hero out/thumb-hero-1920x1080.png && remotion still src/index.ts thumb-modes out/thumb-modes-1920x1080.png && remotion still src/index.ts thumb-dashboard out/thumb-dashboard-1920x1080.png && remotion still src/index.ts thumb-wide out/thumb-wide-1920x960.png",
+		"promo": "remotion render src/index.ts promo out/twitchify-promo-1080p.mp4"
+	},
+	"dependencies": {
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"remotion": "^4.0.0"
+	},
+	"devDependencies": {
+		"@remotion/cli": "^4.0.0",
+		"@types/react": "^18.3.3",
+		"typescript": "^5.5.0"
+	}
+}

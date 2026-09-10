@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      margin: 0;
+      width: 260px;
+      padding: 14px;
+      background: #141418;
+      color: #f2f2f4;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 13px;
+    }
+    h1 { margin: 0 0 4px; font-size: 14px; font-weight: 700; }
+    h1 span { color: #9146ff; }
+    p { margin: 0 0 10px; font-size: 11.5px; color: #6b6b74; line-height: 1.5; }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px;
+      background: #1b1b20;
+      border-radius: 9px;
+      font-weight: 600;
+      font-size: 12.5px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #6b6b74; flex: 0 0 auto; }
+    .ok .dot { background: #10b981; }
+    .bad .dot { background: #ef4444; }
+    .ok { color: #10b981; }
+    .bad { color: #ef4444; }
+    .hint { margin-top: 10px; font-size: 11px; color: #6b6b74; line-height: 1.5; }
+    code { background: #0e0e10; padding: 1px 5px; border-radius: 4px; color: #9b9ba4; }
+  </style>
+</head>
+<body>
+  <h1>Twitch<span>ify</span> Watch Sync</h1>
+  <p>Shares which Twitch channels you have open with the Twitchify widget, so its chat can follow along.</p>
+  <div class="row" id="status"><span class="dot"></span><span id="text">Checking…</span></div>
+  <p class="hint" id="hint"></p>
+  <script src="popup.js"></script>
+</body>
+</html>

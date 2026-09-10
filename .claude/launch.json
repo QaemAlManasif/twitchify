@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "twitch-widget",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["serve.py", "5599", "twitch-widget"],
+      "port": 5599
+    },
+    {
+      "name": "twitch-widget-b",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["serve.py", "5598", "twitch-widget"],
+      "port": 5598
+    }
+  ]
+}

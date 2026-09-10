@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72">
+  <g fill="none">
+    <!-- Left half: the Twitch bubble, cut at the spine — one eye, the
+         chat tail kept. Eye is a punched hole so the mark works on any
+         background. -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+      d="M17 8 H38 V52 H34 L25 61 H17 V52 H8 V17 Z
+         M26 21 a2.5 2.5 0 0 1 5 0 v8 a2.5 2.5 0 0 1 -5 0 z"
+      fill="#ffffff"/>
+
+    <!-- Right half: a live signal going out — the "ify". -->
+    <circle cx="47" cy="34.5" r="5" fill="#ffffff"/>
+    <path d="M56 23 a16.5 16.5 0 0 1 0 23" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+    <path d="M61 16 a26 26 0 0 1 0 37" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

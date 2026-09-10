@@ -1,0 +1,21 @@
+# Build output
+watch-helper/bin/
+watch-helper/obj/
+watch-helper/publish/
+watch-helper/setup/bin/
+watch-helper/setup/obj/
+watch-helper/setup/publish/
+
+# Packaged artifacts — attached to releases instead
+*.icuewidget
+twitchify-watch-sync-*.zip
+
+# Node
+node_modules/
+
+# Generated marketing assets (regenerate: npm run shots / thumbs / promo)
+remotion/out/
+remotion/public/*.png
+
+# Scratch
+*.log

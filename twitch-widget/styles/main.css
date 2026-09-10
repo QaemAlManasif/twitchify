@@ -1,0 +1,3058 @@
+:root {
+  --accent: #9146ff;
+  --accent-soft: rgba(145, 70, 255, 0.16);
+  --bg: #0a0a0c;
+  --panel: rgba(20, 20, 23, var(--panel-alpha));
+  --panel-solid: #141417;
+  --panel-2: #1c1c20;
+  --line: #232328;
+  --text: #f2f2f4;
+  --dim: #9b9ba4;
+  --faint: #6b6b74;
+  --ok: #10b981;
+  --bad: #ef4444;
+  --warn: #f59e0b;
+  --r: 10px;
+  --panel-alpha: 1;
+  --stage-alpha: 1;
+  --msg-size: 14px;
+  --rail: 208px;
+  --edge: rgba(255, 255, 255, 0.06);
+  --edge-soft: rgba(255, 255, 255, 0.035);
+  --hover: rgba(255, 255, 255, 0.045);
+  /* The chrome (rail + header) sits on --bg; the working area is raised. */
+  --stage: #141418;
+  --field: #1b1b20;
+  /* Control sizing, driven by the button-size preference. */
+  --ctl-pad-y: 9px;
+  --ctl-font: 12.5px;
+  --ctl-icon: 15px;
+  --ctl-radius: 9px;
+  --ctl-min: 44px;
+}
+
+* { box-sizing: border-box; }
+
+/* One icon family: stroke-only, 2px, round. Set here because a CSS fill
+   would otherwise beat the presentation attributes on the symbols. */
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Author `display` rules outrank the UA sheet's [hidden], so anything with
+   a display of its own would ignore the attribute. Settle it once. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: hidden;
+}
+#root { height: 100%; }
+
+/* ══ Signed out ═══════════════════════════════════════════════════ */
+#view-auth {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px 16px;
+  overflow-y: auto;
+}
+
+.brand { flex: 0 0 auto; display: flex; align-items: center; gap: 11px; }
+.brand .mark { width: 38px; height: 38px; flex: 0 0 auto; }
+.brand-text { flex: 1 1 auto; min-width: 0; }
+.brand h1 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.15; }
+.brand h1 span { color: var(--accent); }
+.brand p { margin: 1px 0 0; font-size: 12px; color: var(--faint); }
+
+/* Status badge — reflects the Twitch connection, nothing else. */
+.pill {
+  flex: 0 0 auto;
+  padding: 6px 11px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--panel-2);
+  color: var(--dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok      { color: var(--ok);     background: rgba(16, 185, 129, 0.13); }
+.pill.working { color: var(--accent); background: var(--accent-soft); }
+.pill.working::before { animation: blink 1.1s ease-in-out infinite; }
+.pill.bad     { color: var(--bad);    background: rgba(239, 68, 68, 0.13); }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+.stack {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* the card sits mid-screen, not hugging the top */
+  gap: 12px;
+  min-height: 0;
+  width: 100%;
+  max-width: min(640px, 94vw);
+  margin: 0 auto;
+}
+
+.card { background: var(--panel); border-radius: var(--r); padding: clamp(14px, 3vw, 26px); min-width: 0; }
+.card.center { text-align: center; }
+.card h2 { margin: 0 0 7px; font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+.hero { width: 52px; height: 52px; margin-bottom: 10px; }
+
+.lead { margin: 0 0 14px; font-size: 13px; color: var(--dim); line-height: 1.5; }
+.lead b { color: var(--text); }
+
+/* ── Buttons & fields ─────────────────────────────────────────── */
+button {
+  background: var(--panel-2);
+  border: 0;
+  border-radius: 8px;
+  color: var(--text);
+  padding: 11px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background 0.15s, filter 0.15s;
+}
+button:hover { background: #26262b; }
+button:active { transform: translateY(1px); }
+button svg { width: 15px; height: 15px; }
+button.primary { background: var(--accent); color: #fff; font-size: 14px; padding: 12px 16px; }
+button.primary:hover { filter: brightness(1.13); background: var(--accent); }
+button.danger { color: #ff8a8a; }
+button.danger:hover { background: rgba(239, 68, 68, 0.16); }
+button.wide { width: 100%; }
+button.ghost { margin-top: 12px; color: var(--dim); font-size: 12.5px; padding: 9px 13px; }
+button.ghost.small { margin: 0; padding: 7px 11px; font-size: 12px; flex: 0 0 auto; }
+
+input[type="text"] {
+  width: 100%;
+  background: #0e0e10;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 11px;
+  font-size: 13px;
+  font-family: Consolas, "Cascadia Mono", monospace;
+  -webkit-user-select: text;
+  user-select: text;
+}
+input[type="text"]::placeholder { color: var(--faint); font-family: "Segoe UI", sans-serif; }
+/* A bright ring around the field *and* another around the input inside it
+   read as an error state. One soft lift is enough. */
+input[type="text"]:focus { outline: none; background: #17171c; }
+
+
+.or { margin: 14px 0 0; font-size: 12px; color: var(--faint); }
+.or b { color: var(--dim); font-weight: 600; }
+
+.code {
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  color: var(--accent);
+  padding: 6px 0 4px;
+  text-indent: 8px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.status { margin: 8px 0 0; font-size: 12.5px; color: var(--dim); line-height: 1.45; }
+.status.ok  { color: var(--ok); }
+.status.bad { color: var(--bad); }
+
+.warn-card { display: flex; gap: 11px; align-items: center; background: rgba(245, 158, 11, 0.09); }
+.warn-ico { width: 19px; height: 19px; stroke: var(--warn); flex: 0 0 auto; }
+.warn-text { flex: 1 1 auto; min-width: 0; }
+.warn-title { font-weight: 700; font-size: 13.5px; color: var(--warn); }
+.warn-body { font-size: 12.5px; color: var(--dim); line-height: 1.5; margin-top: 3px; }
+
+/* ══ Signed in ════════════════════════════════════════════════════ */
+#view-app { height: 100%; display: flex; position: relative; overflow: hidden; }
+
+/* ── Channel rail ─────────────────────────────────────────────── */
+#rail {
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  padding: 10px 9px;
+  min-height: 0;
+  border-right: 1px solid var(--edge);
+}
+.rail-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 7px 11px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.rail-mark { width: 19px; height: 19px; }
+.rail-foot { margin-top: 8px; width: 100%; }
+
+#channel-list { list-style: none; margin: 0; padding: 0; flex: 1 1 auto; overflow-y: auto; min-height: 0; }
+.chan {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  margin-bottom: 3px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+.chan:hover { background: var(--hover); }
+.chan.on { background: var(--accent-soft); }
+/* An accent spine reads as "selected" faster than a fill alone. */
+.chan.on::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+.chan-av { position: relative; flex: 0 0 auto; }
+.av-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--panel-2);
+  object-fit: cover;
+  display: block;
+}
+.av-live {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--bad);
+  box-shadow: 0 0 0 2.5px var(--panel-solid);
+}
+.chan-body { min-width: 0; flex: 1 1 auto; }
+.chan-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chan.on .chan-name { color: #d9c6ff; }
+.chan-tag { font-size: 10.5px; color: var(--faint); margin-top: 1px; }
+.is-live .chan-tag { color: #ff8a8a; }
+
+/* ── Chat ─────────────────────────────────────────────────────── */
+#chat { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+
+#chat-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 13px;
+  border-bottom: 1px solid var(--edge);
+}
+.chat-title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#chat-name {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.live-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bad);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16);
+}
+#chat-modes { flex: 1 1 auto; display: flex; gap: 5px; flex-wrap: wrap; min-width: 0; }
+.mode-chip {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: #c6a8ff;
+  white-space: nowrap;
+}
+
+/* Connection state inside the app — the signed-out pill isn't visible here,
+   so a reconnect would otherwise go unnoticed. */
+.conn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.conn::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.conn.ok { color: var(--ok); }
+.conn.working { color: var(--warn); }
+.conn.working::before { animation: blink 1.1s ease-in-out infinite; }
+.conn.bad { color: var(--bad); }
+
+.icon-btn { padding: 8px; background: transparent; color: var(--dim); flex: 0 0 auto; }
+.icon-btn:hover { background: var(--panel-2); color: var(--text); }
+.icon-btn svg { width: 17px; height: 17px; }
+.icon-btn
+
+#messages {
+  list-style: none;
+  margin: 0;
+  padding: 10px 9px 12px;
+  overflow-y: auto;
+  min-height: 0;
+}
+.msg {
+  padding: 5px 9px;
+  margin: 1px 0;
+  border-radius: 7px;
+  font-size: var(--msg-size);
+  line-height: 1.5;
+  cursor: pointer;
+  word-wrap: break-word;
+  transition: background 0.12s;
+}
+.msg:hover { background: var(--hover); box-shadow: inset 2px 0 0 var(--accent); }
+.msg.deleted { opacity: 0.34; text-decoration: line-through; }
+.who { font-weight: 700; }
+.who::after { content: ":"; color: var(--faint); font-weight: 400; }
+.text { margin-left: 5px; color: #e6e6ea; }
+.mention { color: #c6a8ff; font-weight: 600; }
+.emote { height: 26px; vertical-align: -8px; margin: -2px 2px; }
+
+.badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  margin-right: 4px;
+  vertical-align: 1px;
+  background: #3a3a42;
+  color: #fff;
+}
+.b-broadcaster { background: #e02c2c; }
+.b-moderator   { background: #00a865; }
+.b-vip         { background: #e005b9; }
+.b-subscriber  { background: #6441a5; }
+
+.notice { padding: 6px 8px; margin: 3px 0; border-left: 2px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+.notice-text { font-size: 12px; color: #c6a8ff; }
+
+.sheet-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.sheet-head img { width: 40px; height: 40px; border-radius: 9px; background: var(--panel-2); flex: 0 0 auto; }
+.sheet-who { flex: 1 1 auto; min-width: 0; }
+#sheet-name, #settings-title { font-size: 15px; font-weight: 700; }
+.sheet-sub { font-size: 11px; color: var(--faint); margin-top: 1px; }
+
+#sheet-message {
+  margin: 0 0 14px;
+  padding: 9px 11px;
+  background: var(--panel-2);
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--dim);
+  line-height: 1.45;
+  max-height: 88px;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+.sheet-group { margin-bottom: 14px; }
+.sheet-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 7px;
+}
+.mini { width: 13px; height: 13px; }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-row button { flex: 1 1 auto; padding: 10px 8px; font-size: 13px; }
+
+.sheet-result {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--ok);
+}
+.sheet-result.bad { background: rgba(239, 68, 68, 0.12); color: #ff8a8a; }
+
+#settings-list { list-style: none; margin: 0 0 14px; padding: 0; }
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+  font-size: 13.5px;
+}
+.toggle:last-child { border-bottom: 0; }
+.settings-empty { font-size: 12.5px; color: var(--faint); padding: 8px 0; }
+
+.switch {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 24px;
+  padding: 0;
+  border-radius: 12px;
+  background: #2c2c33;
+  justify-content: flex-start;
+  transition: background 0.18s;
+}
+.switch:hover { background: #35353d; }
+.switch.on { background: var(--accent); }
+.switch .knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  margin-left: 3px;
+  transition: transform 0.18s;
+}
+.switch.on .knob { transform: translateX(18px); }
+
+#toast {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: 62px;
+  transform: translateX(-50%);
+  background: #26262c;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-width: 80%;
+}
+#toast.bad { background: #3a1f22; color: #ff8a8a; }
+
+/* ══ Layouts ══════════════════════════════════════════════════════
+   The EDGE is wide and short, but a widget can be placed at any size, so
+   the arrangement is a preference rather than a media query. */
+
+/* Side by side — rail on the left (default) */
+body.layout-side #view-app { flex-direction: row; }
+body.layout-side #rail { flex: 0 0 var(--rail); }
+
+/* Stacked — rail becomes a horizontal strip of channel chips on top */
+body.layout-top #view-app { flex-direction: column; }
+body.layout-top #rail {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 8px 10px;
+}
+body.layout-top .rail-head { display: none; }
+body.layout-top #channel-list {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+body.layout-top .chan-tag { display: none; }
+body.layout-top .chan-name { max-width: 160px; }
+
+/* Chat only — rail hidden, reachable from the header button */
+body.layout-chat #view-app { flex-direction: row; }
+body.layout-chat #rail {
+  position: absolute;
+  z-index: 7;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--rail);
+  transform: translateX(-100%);
+  transition: transform 0.2s;
+  box-shadow: 14px 0 40px rgba(0, 0, 0, 0.45);
+  background: var(--panel-solid);
+}
+body.layout-chat.rail-open #rail { transform: none; }
+
+/* ══ Chat body: messages beside an optional viewer list ═══════════ */
+#chat-body { flex: 1 1 auto; display: flex; min-height: 0; min-width: 0; }
+#messages { flex: 1 1 auto; }
+
+#viewers {
+  flex: 0 0 178px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--edge);
+  background: rgba(0, 0, 0, 0.16);
+}
+.side-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 11px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.side-ico { width: 13px; height: 13px; flex: 0 0 auto; }
+.side-head span:first-of-type { flex: 1 1 auto; }
+.side-count {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--dim);
+  background: var(--panel-2);
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+.side-search {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 9px 8px;
+  padding: 0 9px;
+  background: #0e0e10;
+  border-radius: 8px;
+}
+.side-search svg { width: 13px; height: 13px; stroke: var(--faint); flex: 0 0 auto; }
+.side-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 8px 0;
+}
+.side-search input::placeholder { color: var(--faint); }
+#viewer-list { list-style: none; margin: 0; padding: 0 8px 10px; overflow-y: auto; min-height: 0; }
+.viewer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 7px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.viewer-av {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--panel-2);
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+.viewer-name {
+  font-size: 12.5px;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.viewer:hover { background: var(--hover); }
+.viewer:hover .viewer-name { color: var(--text); }
+.side-empty { padding: 8px 7px; font-size: 11.5px; color: var(--faint); line-height: 1.5; }
+
+/* ══ Quick actions ════════════════════════════════════════════════ */
+#quick-actions {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  padding: 9px 13px 0;
+  overflow-x: auto;
+}
+.qa {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--dim);
+  box-shadow: inset 0 0 0 1px var(--edge-soft);
+  transition: background 0.14s, color 0.14s, box-shadow 0.14s;
+}
+.qa svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.qa-label { line-height: 1; }
+.qa:hover { color: var(--text); background: #26262b; }
+.qa.on {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16), 0 2px 10px rgba(145, 70, 255, 0.3);
+}
+.qa.on:hover { background: var(--accent); filter: brightness(1.1); }
+.qa.danger { color: #ff8a8a; }
+.qa.danger:hover { background: rgba(239, 68, 68, 0.18); }
+
+/* ══ Message density, size, stamps, badge art ═════════════════════ */
+.msg { font-size: var(--msg-size); }
+body.compact .msg { padding: 1px 6px; line-height: 1.3; }
+body.compact .emote { height: 20px; vertical-align: -5px; }
+
+.stamp {
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 10.5px;
+  color: var(--faint);
+  margin-right: 6px;
+}
+.badge-img {
+  height: 18px;
+  width: 18px;
+  vertical-align: -4px;
+  margin-right: 4px;
+  border-radius: 3px;
+}
+body.compact .badge-img { height: 16px; width: 16px; vertical-align: -3px; }
+
+/* ══ Preferences controls ═════════════════════════════════════════ */
+.pref-group {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 16px 0 6px;
+}
+.pref-group:first-child { margin-top: 0; }
+
+.pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+}
+.pref-row:last-child { border-bottom: 0; }
+.pref-label { font-size: 13px; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+
+.seg { display: flex; gap: 3px; padding: 3px; background: #18181a; border-radius: 7px; flex: 0 0 auto; }
+.seg-btn {
+  padding: 6px 10px;
+  font-size: 11.5px;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dim);
+}
+.seg-btn:hover { background: #27272a; }
+.seg-btn.on { background: var(--accent); color: #fff; }
+
+.swatches { display: flex; gap: 6px; flex: 0 0 auto; }
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.swatch.on { box-shadow: 0 0 0 2px var(--text); }
+
+.range-wrap { display: flex; align-items: center; gap: 9px; flex: 0 0 auto; }
+.range-wrap input[type="range"] { width: 108px; accent-color: var(--accent); }
+.range-val {
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 11.5px;
+  color: var(--dim);
+  min-width: 34px;
+  text-align: right;
+}
+.pref-row.stack { flex-direction: column; align-items: stretch; gap: 7px; }
+.pref-text { width: 100%; font-size: 12px; padding: 8px 9px; }
+
+.icon-btn.on { color: var(--accent); }
+button:disabled { opacity: 0.35; pointer-events: none; }
+
+/* ══ Broadcast panel ══════════════════════════════════════════════ */
+#broadcast input[type="text"] { margin-top: 2px; }
+.bc-current {
+  padding: 9px 11px;
+  background: var(--panel-2);
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 7px;
+}
+.bc-results { list-style: none; margin: 7px 0 0; padding: 0; }
+.bc-hit {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  color: var(--dim);
+  cursor: pointer;
+}
+.bc-hit:hover { background: var(--panel-2); color: var(--text); }
+.bc-hit img { width: 28px; height: 37px; object-fit: cover; border-radius: 4px; flex: 0 0 auto; }
+#bc-ads .btn-row, #bc-ads { display: flex; gap: 6px; flex-wrap: wrap; }
+#bc-ads button { flex: 1 1 auto; padding: 10px 6px; font-size: 12.5px; }
+
+
+/* ══ Shell: continuous chrome, raised stage ═══════════════════════
+   The rail and the header share the window background so they read as
+   one surface; the working area sits on a lighter inset panel rather
+   than every region being its own bordered box. */
+#view-app { background: var(--bg); }
+
+#rail {
+  background: transparent;
+  border-right: 0;
+  padding: 12px 10px;
+}
+
+#chat-head {
+  background: transparent;
+  border-bottom: 0;
+  padding: 12px 14px 10px 4px;
+}
+
+#stage {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  margin: 0 12px 12px 0;
+  background: var(--stage);
+  border-radius: 14px;
+  overflow: hidden;
+}
+body.layout-top #stage { margin: 0 12px 12px; }
+body.layout-chat #stage { margin: 0 12px 12px; }
+
+#chat-body { border-radius: 14px 14px 0 0; }
+#viewers { background: rgba(0, 0, 0, 0.18); border-left: 1px solid var(--edge-soft); }
+
+/* ══ Control sizing ═══════════════════════════════════════════════ */
+body.size-sm { --ctl-pad-y: 9px;  --ctl-font: 12px;   --ctl-icon: 15px; --ctl-radius: 8px;  --ctl-min: 36px; }
+body.size-md { --ctl-pad-y: 13px; --ctl-font: 13px;   --ctl-icon: 17px; --ctl-radius: 10px; --ctl-min: 44px; }
+body.size-lg { --ctl-pad-y: 17px; --ctl-font: 14.5px; --ctl-icon: 20px; --ctl-radius: 12px; --ctl-min: 54px; }
+
+/* ══ Quick actions: one full-width row, flush with the composer ═══ */
+#quick-actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 6px;
+  padding: 10px 12px 12px;
+  overflow: visible;
+}
+.qa {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: var(--ctl-pad-y) 6px;
+  font-size: var(--ctl-font);
+  font-weight: 600;
+  border-radius: var(--ctl-radius);
+  background: var(--field);
+  color: var(--dim);
+  box-shadow: none;          /* no ring — the fill carries the state */
+  transition: background 0.14s, color 0.14s;
+}
+.qa { min-height: var(--ctl-min); }
+.qa svg { width: var(--ctl-icon); height: var(--ctl-icon); flex: 0 0 auto; }
+.qa-label { line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qa:hover { background: #26262c; color: var(--text); }
+.qa.on {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: none;          /* the glow read as a bug, not emphasis */
+}
+.qa.on:hover { background: var(--accent); filter: brightness(1.08); }
+.qa.danger { color: #ff8a8a; }
+.qa.danger:hover { background: rgba(239, 68, 68, 0.16); }
+
+/* ══ Composer: same width and rhythm as the row above it ═════════ */
+#composer { padding: 0 12px 12px; }
+.composer-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 5px 0 13px;
+  background: var(--field);
+  border-radius: var(--ctl-radius);
+  box-shadow: none;          /* no border ring */
+  transition: background 0.15s;
+}
+.composer-field:focus-within { background: #24242a; }
+.composer-field input:focus { background: none; }
+.composer-field input {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--ctl-font);
+  padding: calc(var(--ctl-pad-y) + 2px) 0;
+}
+.composer-field input::placeholder { color: var(--faint); }
+.send {
+  flex: 0 0 auto;
+  min-height: calc(var(--ctl-min) - 8px);
+  padding: calc(var(--ctl-pad-y) - 4px) 14px;
+  border-radius: calc(var(--ctl-radius) - 2px);
+  background: var(--accent);
+  color: #fff;
+}
+.send:hover { background: var(--accent); filter: brightness(1.1); }
+.send svg { width: var(--ctl-icon); height: var(--ctl-icon); }
+
+/* Header icon buttons follow the same size scale. */
+.icon-btn { min-width: var(--ctl-min); min-height: var(--ctl-min); padding: 0; border-radius: var(--ctl-radius); }
+.icon-btn svg { width: var(--ctl-icon); height: var(--ctl-icon); }
+
+
+/* ══ Preferences dialog ═══════════════════════════════════════════
+   A 340px drawer squeezed every label against its control ("Arrangement"
+   truncated to "Arra"). A centred dialog gives the controls room and, on
+   a short screen, two columns to halve the scrolling. */
+.modal {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(620px, calc(100% - 40px));
+  max-height: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  background: var(--stage);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.modal .sheet-head {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--edge-soft);
+}
+.modal #prefs-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 4px 18px 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
+  column-gap: 26px;
+  /* Rows must size to their content: a full-width row (the timeout editor)
+     is taller than its neighbours and would otherwise be overlapped. */
+  grid-auto-rows: min-content;
+  align-items: start;
+}
+.modal .sheet-group {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 12px 18px 16px;
+  border-top: 1px solid var(--edge-soft);
+}
+
+/* Section headings span the full width so the columns stay readable. */
+.modal .pref-group {
+  grid-column: 1 / -1;
+  margin: 16px 0 2px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--edge-soft);
+}
+.modal .pref-row {
+  padding: 11px 0;
+  gap: 14px;
+  border-bottom: 0;
+}
+.modal .pref-label { font-size: 13px; line-height: 1.3; }
+.modal .pref-row.stack { grid-column: 1 / -1; }
+
+/* Controls get a floor so they stop collapsing into the label. */
+.modal .seg { flex: 0 0 auto; }
+.modal .seg-btn { padding: 7px 12px; }
+.modal .range-wrap input[type="range"] { width: 120px; }
+
+
+/* ══ Overlay + drawers ════════════════════════════════════════════
+   These were lost in an earlier edit, which left the scrim as a
+   zero-size static div — the dialog opened with nothing behind it. */
+#scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: rgba(6, 6, 8, 0.66);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Side drawers: per-user moderation, chat settings, broadcast. */
+.panel {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 86%);
+  display: flex;
+  flex-direction: column;
+  background: var(--stage);
+  padding: 16px;
+  overflow-y: auto;
+  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.5);
+}
+
+/* ══ Touch ════════════════════════════════════════════════════════
+   The XENEON EDGE is a touchscreen with no pointer, so: no 300ms tap
+   delay, no tap highlight, no long-press callout, and hover states are
+   gated behind an actual hover-capable pointer — otherwise they latch
+   on after a tap and look stuck. */
+html, body {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+img { -webkit-user-drag: none; user-select: none; }
+
+/* Momentum scrolling, and don't drag the whole widget when a list ends. */
+#messages, #channel-list, #viewer-list, #prefs-body, .panel, #view-auth {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Scrollbars wide enough to grab with a finger. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:active { background: rgba(255, 255, 255, 0.26); background-clip: padding-box; }
+
+/* Hover is a mouse idea. On touch it sticks, so scope it. */
+@media (hover: none) {
+  .qa:hover, .chan:hover, .viewer:hover, .msg:hover,
+  button:hover, .icon-btn:hover, .seg-btn:hover, .bc-hit:hover {
+    background: inherit;
+    filter: none;
+  }
+  .msg:hover { box-shadow: none; }
+}
+
+/* Pressed feedback matters more than hover when there's no cursor. */
+.qa:active, .chan:active, .viewer:active, .bc-hit:active,
+button:active, .seg-btn:active {
+  filter: brightness(1.35);
+}
+.msg:active { background: var(--hover); box-shadow: inset 2px 0 0 var(--accent); }
+
+/* Coarse pointers need bigger targets than a mouse does. */
+@media (pointer: coarse) {
+  :root { --ctl-pad-y: 12px; --ctl-icon: 18px; }
+  body.size-sm { --ctl-pad-y: 10px; --ctl-icon: 16px; }
+  body.size-lg { --ctl-pad-y: 15px; --ctl-icon: 20px; }
+
+  .icon-btn { min-width: 44px; min-height: 44px; }
+  .chan { padding: 11px 10px; }
+  .viewer { padding: 9px 7px; }
+  .seg-btn { padding: 10px 14px; }
+  .switch { width: 48px; height: 28px; }
+  .switch .knob { width: 22px; height: 22px; }
+  .switch.on .knob { transform: translateX(20px); }
+  .btn-row button { padding: 13px 10px; }
+  .swatch { width: 28px; height: 28px; }
+  .range-wrap input[type="range"] { height: 28px; }
+  /* A finger can't hit a 3px spine, but it reads fine as a marker. */
+  .modal .pref-row { padding: 13px 0; }
+}
+
+/* ══ XENEON EDGE ══════════════════════════════════════════════════
+   2560x720 — very wide, very short. Vertical space is the scarce
+   resource, so trim the chrome and let the stage take the height. */
+@media (max-height: 480px) {
+  #view-auth { padding: 10px 12px; gap: 10px; }
+  .brand h1 { font-size: 15px; }
+  .hero { display: none; }
+  .card { padding: 13px; }
+  .code { font-size: 30px; padding: 2px 0; }
+
+  #rail { padding: 8px 8px; }
+  .rail-head { padding: 2px 6px 7px; }
+  #chat-head { padding: 8px 12px 7px 4px; }
+  #stage { margin: 0 8px 8px 0; border-radius: 12px; }
+  #messages { padding: 7px 8px 9px; }
+  #quick-actions { padding: 8px 9px 9px; }
+  #composer { padding: 0 9px 9px; }
+  .modal { max-height: calc(100% - 20px); }
+  .modal .sheet-head { padding: 11px 16px; }
+  .modal #prefs-body { padding: 2px 16px 10px; }
+}
+
+
+/* ══ Watch sync section ═══════════════════════════════════════════ */
+.rail-section {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 4px;
+  padding: 0 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.rail-note {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: none;
+  color: #4d4d55;
+}
+/* The tab you're actually looking at, as opposed to merely open. */
+.av-focus {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2.5px var(--bg);
+}
+
+/* ══ Message rows ═════════════════════════════════════════════════
+   The old hover slapped an accent bar inside the row, which fought the
+   text. A plain tint plus the actions sliding in reads calmer. */
+.msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  position: relative;
+  padding: 5px 9px;
+  border-radius: 8px;
+}
+.msg:hover { background: var(--hover); box-shadow: none; }
+.msg:active { background: var(--hover); box-shadow: none; }
+.msg > .text { flex: 1 1 auto; min-width: 0; }
+
+.msg-av {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--panel-2);
+  object-fit: cover;
+  margin-top: 1px;
+}
+body.compact .msg-av { width: 18px; height: 18px; border-radius: 5px; }
+
+/* Inline moderation, revealed on the row you're pointing at. */
+.msg-actions {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  display: none;
+  gap: 3px;
+  padding: 2px;
+  background: #23232a;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+.msg:hover .msg-actions { display: flex; }
+.msg-act {
+  padding: 6px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dim);
+}
+.msg-act:hover { background: #32323a; color: var(--text); }
+.msg-act:last-child:hover { background: rgba(239, 68, 68, 0.2); color: #ff8a8a; }
+.msg-act svg { width: 15px; height: 15px; }
+/* No hover on touch, so keep them permanently visible instead. */
+@media (hover: none) {
+  .msg-actions { display: flex; position: static; margin-left: auto; background: transparent; box-shadow: none; }
+}
+
+/* ══ Viewer list ══════════════════════════════════════════════════ */
+#viewers {
+  flex: 0 0 186px;
+  margin: 8px 8px 0 0;
+  border-radius: 11px;
+  border-left: 0;
+  background: rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+.side-head { padding: 12px 12px 9px; }
+.side-search { margin: 0 10px 9px; }
+#viewer-list { padding: 0 9px 10px; }
+.side-empty {
+  margin: 0 3px;
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 9px;
+  font-size: 11.5px;
+  color: var(--faint);
+  line-height: 1.5;
+}
+
+/* ══ Stacked layout ═══════════════════════════════════════════════
+   A vertical list turned sideways looked like leftovers. Treat the strip
+   as tabs: fixed height, no avatars fighting the text, clear active tab. */
+body.layout-top #rail {
+  padding: 10px 12px 0;
+  background: transparent;
+  border: 0;
+}
+body.layout-top #channel-list {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 0 0 2px;
+}
+body.layout-top .chan.on::before { display: none; }
+body.layout-top .chan .av-img { width: 24px; height: 24px; border-radius: 7px; }
+body.layout-top .chan-tag { display: none; }
+body.layout-top .chan-name { max-width: 150px; font-size: 12.5px; }
+body.layout-top #stage { margin: 0 12px 12px; border-radius: 0 12px 12px 12px; }
+body.layout-top #chat-head { padding: 8px 14px 8px 12px; }
+
+/* The Watching heading can't be a full-width row inside a tab strip. */
+body.layout-top .rail-note { display: none; }
+
+/* ══ Chat layout: optional tab strip, dismissable rail ════════════ */
+#rail-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: rgba(6, 6, 8, 0.5);
+}
+body.layout-chat #rail { z-index: 7; }
+
+/* Tabs give a one-tap switch without opening the rail at all. */
+body.layout-chat.tabs-in-chat #chat-head { padding-bottom: 0; }
+#chat-tabs {
+  display: none;
+  flex: 0 0 auto;      /* a column flex parent would otherwise squash it */
+  gap: 6px;
+  padding: 0 12px 8px;
+  overflow-x: auto;
+}
+body.layout-chat.tabs-in-chat #chat-tabs { display: flex; }
+.chat-tab {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--dim);
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 38px;
+}
+.chat-tab.on { background: var(--accent); color: #fff; }
+.chat-tab img { width: 20px; height: 20px; border-radius: 6px; object-fit: cover; }
+
+/* ══ Timeout editor ═══════════════════════════════════════════════ */
+.timeouts { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+.timeout-row { display: flex; align-items: center; gap: 7px; }
+.timeout-n {
+  width: 74px;
+  flex: 0 0 auto;
+  background: #0e0e10;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text);
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 13px;
+  padding: 9px 10px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.timeout-n:focus { outline: none; background: #17171c; }
+.timeout-row .seg { flex: 1 1 auto; }
+.timeout-row .seg-btn { flex: 1 1 0; padding: 8px 0; }
+.timeout-del {
+  flex: 0 0 auto;
+  padding: 9px;
+  min-width: 38px;
+  background: transparent;
+  color: var(--faint);
+}
+.timeout-del:hover { background: rgba(239, 68, 68, 0.16); color: #ff8a8a; }
+.timeout-del svg { width: 14px; height: 14px; }
+.timeout-add {
+  justify-content: center;
+  gap: 7px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--dim);
+  font-size: 12.5px;
+}
+.timeout-add svg { width: 14px; height: 14px; }
+
+.sheet-note {
+  margin: 0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 9px;
+  font-size: 12.5px;
+  color: var(--faint);
+  line-height: 1.5;
+}
+
+
+/* ══ Channel picture in the header ════════════════════════════════ */
+.chat-av {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+body.size-lg .chat-av { width: 32px; height: 32px; border-radius: 10px; }
+body.size-sm .chat-av { width: 24px; height: 24px; border-radius: 8px; }
+
+/* ══ Viewer list ══════════════════════════════════════════════════ */
+/* It sat flush against the bottom of the stage. */
+#viewers { margin: 8px 8px 8px 0; }
+body.layout-top #viewers, body.layout-chat #viewers { margin: 8px; }
+
+/* ══ Chat layout ══════════════════════════════════════════════════ */
+/* The rail is translated off-screen, but its shadow still fell across
+   the stage — a drop shadow with nothing visible casting it. */
+body.layout-chat #rail { box-shadow: none; }
+body.layout-chat.rail-open #rail { box-shadow: 14px 0 40px rgba(0, 0, 0, 0.45); }
+
+/* ══ Preferences footer ═══════════════════════════════════════════ */
+.prefs-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.prefs-foot .danger { color: #ff8a8a; }
+.prefs-foot .danger:hover { background: rgba(239, 68, 68, 0.16); }
+.prefs-foot .danger.armed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ff6b6b;
+}
+
+
+/* ══ Timeout unit picker ══════════════════════════════════════════ */
+
+
+
+/* ══ Dropdown ═════════════════════════════════════════════════════ */
+.dd { position: relative; flex: 1 1 auto; min-width: 0; }
+.dd-btn {
+  width: 100%;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 11px;
+  background: #0e0e10;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.dd-btn:hover { background: #17171c; }
+.dd.open .dd-btn { background: #17171c; }
+.dd-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-chev {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: var(--faint);
+  transition: transform 0.16s;
+}
+.dd.open .dd-chev { transform: rotate(180deg); }
+
+.dd-list {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  background: #1e1e24;
+  border-radius: 10px;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+.dd-opt {
+  padding: 9px 10px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  color: var(--dim);
+  cursor: pointer;
+}
+.dd-opt:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.dd-opt.on { background: var(--accent); color: #fff; font-weight: 600; }
+
+
+/* ══ Dropdown ═════════════════════════════════════════════════════ */
+.dd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 11px;
+  background: #0e0e10;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.dd:hover { background: #17171c; }
+.dd.open { background: #17171c; box-shadow: inset 0 0 0 1px var(--accent); }
+.dd-chev { width: 14px; height: 14px; stroke: var(--faint); flex: 0 0 auto; transition: transform 0.15s; }
+.dd.open .dd-chev { transform: rotate(180deg); }
+.dd-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.timeout-u { flex: 1 1 auto; min-width: 0; }
+
+.dd-menu {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  min-width: 120px;
+  background: #1e1e24;
+  border-radius: 10px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6);
+}
+.dd-item {
+  justify-content: flex-start;
+  padding: 9px 11px;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.dd-item:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.dd-item.on { background: var(--accent); color: #fff; }
+.dd-item.on:hover { background: var(--accent); filter: brightness(1.08); }
+
+/* ══ Composer focus ═══════════════════════════════════════════════
+   Two stacked rings (field + inner input) read as an error state. A
+   single soft lift is enough to show focus. */
+.composer-field { transition: background 0.15s; box-shadow: none; }
+.composer-field:focus-within { background: #24242a; box-shadow: none; }
+.composer-field input:focus { background: none; outline: none; }
+
+
+/* ══ Chat-layout tab strip ════════════════════════════════════════
+   The strip sat flush against the header, so the tabs looked welded to
+   the channel name. Give it its own band. */
+body.layout-chat.tabs-in-chat #chat-head { padding-bottom: 6px; }
+#chat-tabs { padding: 4px 12px 10px; }
+
+/* ══ Preference info marker ═══════════════════════════════════════ */
+.pref-label { display: inline-flex; align-items: center; gap: 6px; }
+
+.pref-info {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0;
+  min-width: 16px;
+  min-height: 16px;
+  background: none;
+  color: var(--faint);
+}
+.pref-info:hover { background: none; color: var(--dim); }
+/* Amber is reserved for the settings that need the extension and helper,
+   so it stays a signal rather than decoration. */
+.pref-info.needs-setup { color: #ef9b00; }
+.pref-info.needs-setup:hover { color: #ffb42e; }
+.pref-info svg { width: 15px; height: 15px; }
+
+/* Connection tiles: live Twitch / helper / extension state. Same surface
+   and radius as the rest of the dialog — cards, not pills. */
+.pref-row.watch-status {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  min-height: 0;
+}
+.ws-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.ws-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+}
+.ws-item.ok .ws-dot { background: var(--ok); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14); }
+.ws-item.warn .ws-dot { background: var(--warn); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.14); }
+.ws-item.bad .ws-dot { background: var(--bad); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.14); }
+.ws-col { min-width: 0; }
+.ws-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ws-state {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ws-item.ok .ws-state { color: var(--text); }
+
+/* A row whose feature can't work yet reads as unavailable. */
+.pref-row.disabled { opacity: 0.45; }
+.pref-row.disabled .switch,
+.pref-row.disabled .seg,
+.pref-row.disabled input { pointer-events: none; }
+/* ...except the marker explaining why. */
+.pref-row.disabled .pref-info { opacity: 1; pointer-events: auto; }
+
+
+/* ══ Moderation notices in chat ═══════════════════════════════════ */
+.mod-notice {
+  border-left-color: var(--warn);
+  background: rgba(245, 158, 11, 0.08);
+}
+.mod-notice .notice-text { color: #f0c274; }
+
+/* ══ Raid in progress ═════════════════════════════════════════════ */
+.raid-live {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  background: rgba(145, 70, 255, 0.12);
+  border-radius: 9px;
+}
+.raid-target { font-size: 13px; font-weight: 700; }
+.raid-count {
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 11.5px;
+  color: #c6a8ff;
+  margin-top: 2px;
+}
+
+/* ══ Message body ═════════════════════════════════════════════════
+   Only the avatar, the body and the action bar are flex items. The
+   timestamp, badges, name and text flow inline inside the body — as flex
+   items they each picked up the row's 8px gap, which is what tore the
+   left edge apart and pushed the text across the row. */
+.msg-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.5;
+}
+.msg-body .stamp { margin-right: 7px; }
+.msg-body .badge-img { margin-right: 3px; }
+.msg-body .badge { margin-right: 3px; }
+.msg-body .who { margin-right: 1px; }
+.msg-body .text { margin-left: 5px; }
+/* Room for the action bar so it never lands on the last word. */
+body.inline-mod .msg { padding-right: 78px; }
+
+/* ══ Unread ═══════════════════════════════════════════════════════ */
+.unread {
+  flex: 0 0 auto;
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.5;
+}
+.chat-tab .unread { margin-left: 2px; }
+
+/* ══ Custom colour well ═══════════════════════════════════════════ */
+.swatch.custom {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background:
+    conic-gradient(from 0deg,
+      #ff4a80, #ffa14a, #ffd24a, #5ad46a, #4ad4c4, #4aa8ff, #8f7bff, #ff4a80);
+}
+.swatch.custom input[type="color"] {
+  position: absolute;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  padding: 0;
+  border: 0;
+  background: none;
+  opacity: 0;
+  cursor: pointer;
+}
+
+
+/* ══ Inline moderation: present, not hidden behind a hover ════════
+   The EDGE is a touchscreen with no pointer, so hover-revealed controls
+   are unreachable. They sit at the head of the row instead. */
+.msg-actions {
+  position: static;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 3px;
+  margin-right: 2px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+.msg:hover .msg-actions { display: flex; }
+.msg-act {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 6px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--dim);
+}
+.msg-act:hover { background: rgba(255, 255, 255, 0.11); color: var(--text); }
+.msg-act:last-child:hover { background: rgba(239, 68, 68, 0.22); color: #ff8a8a; }
+
+/* ══ Confirm bar ══════════════════════════════════════════════════
+   A pending mod action, pinned above the composer where fast chat
+   can't scroll it away. Amber = "attention", same as everywhere else. */
+#confirm-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 12px 8px;
+}
+.cb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(239, 155, 0, 0.09);
+  animation: fade-in 0.12s ease-out;
+}
+.cb-row .cb-ico { flex: 0 0 auto; width: 15px; height: 15px; color: #ffb42e; }
+.cb-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cb-text b { font-weight: 700; color: var(--text); }
+.cb-btn {
+  flex: 0 0 auto;
+  min-height: var(--ctl-min);
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--dim);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.cb-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text); }
+.cb-btn.yes { background: rgba(239, 155, 0, 0.2); color: #ffb42e; }
+.cb-btn.yes:hover { background: rgba(239, 155, 0, 0.3); color: #ffc95e; }
+
+/* Armed for confirmation: the same button asking "sure?". Amber, not
+   red — red reads as error/denied; amber is the widget's "attention"
+   colour (it already marks settings needing setup). No border: the
+   colour shift alone is the signal. */
+.msg-act.armed, .qa.armed {
+  background: rgba(239, 155, 0, 0.18) !important;
+  color: #ffb42e !important;
+  box-shadow: none !important;
+}
+@media (hover: none) {
+  .msg-actions { position: static; margin-left: 0; background: none; box-shadow: none; }
+}
+/* The buttons lead the row now, so no right-hand reservation is needed. */
+body.inline-mod .msg { padding-right: 10px; }
+
+/* ══ Message gutters ══════════════════════════════════════════════
+   Rows ran edge to edge against the stage, so a highlighted row looked
+   like a full-width band. */
+#messages { padding: 10px 12px 12px; }
+.msg { padding: 6px 10px; margin: 1px 0; }
+body.compact .msg { padding: 3px 10px; }
+
+/* ══ Selected channel ═════════════════════════════════════════════
+   Default: a neutral dark fill with a short accent bar on the left —
+   the accent marks, it doesn't flood. Filled restores the solid block. */
+.chan.on, .chat-tab.on {
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.06);
+}
+.chan.on .chan-name, .chat-tab.on { color: var(--text); }
+/* The spine sits ON the fill's edge, not floating inside it: flush
+   left, rounded only on the inner side, shorter than the row, with a
+   soft accent glow. */
+.chan.on::before {
+  display: block;
+  left: 0;
+  width: 4px;
+  height: 18px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+  box-shadow: none;
+}
+
+body.sel-fill .chan.on {
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+body.sel-fill .chan.on::before { display: block; }
+body.sel-fill .chat-tab.on {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: none;
+}
+/* Stacked tabs merge into the stage, so an outline would cut them off. */
+
+
+/* ══ Stacked: a single bar ════════════════════════════════════════
+   Tabs and controls share one row. The active tab already names the
+   channel, so the separate header underneath was dead height on a
+   screen that has very little of it. */
+#head-controls { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+
+body.layout-top #rail {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px 12px 0;
+}
+body.layout-top #channel-list { flex: 1 1 auto; min-width: 0; align-items: flex-end; }
+body.layout-top #head-controls { padding-bottom: 8px; }
+body.layout-top #chat-head { display: none; }
+body.layout-top #stage { margin: 0 12px 12px; border-radius: 12px; }
+
+/* ══ Preferences: no stray scrollbars ═════════════════════════════
+   A control overflowing by a pixel produced a horizontal scrollbar and,
+   with it, the white scrollbar corner in the bottom right. */
+.modal #prefs-body { overflow-x: hidden; }
+.modal .pref-row { min-width: 0; }
+.modal .range-wrap { min-width: 0; }
+.modal .range-wrap input[type="range"] { max-width: 100%; }
+.modal .seg { flex-wrap: nowrap; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+
+/* ══ Pinned channels ══════════════════════════════════════════════ */
+.pin-list { list-style: none; margin: 0; padding: 0; }
+.pin-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+}
+.pin-row:last-child { border-bottom: 0; }
+.pin-name { flex: 1 1 auto; min-width: 0; font-size: 13px; }
+.av-img.small { width: 24px; height: 24px; border-radius: 7px; }
+.pin-del {
+  flex: 0 0 auto;
+  padding: 7px;
+  min-width: 30px;
+  background: none;
+  color: var(--faint);
+}
+.pin-del:hover { background: rgba(239, 68, 68, 0.16); color: #ff8a8a; }
+.pin-del svg { width: 13px; height: 13px; }
+#pins .sheet-sub { line-height: 1.45; margin-top: 3px; }
+
+
+/* ══ Stacked tabs ═════════════════════════════════════════════════
+   Even-height chips on one line, marked by an accent underline. The
+   previous version merged the active tab into the stage, so tabs were
+   different heights and a "WATCHING" label sat wedged between them —
+   the row never settled into a straight line. */
+body.layout-top #channel-list {
+  align-items: stretch;
+  gap: 4px;
+  padding-bottom: 0;
+}
+body.layout-top .chan {
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 12px;
+  height: 42px;
+  border-radius: 9px 9px 0 0;
+  background: transparent;
+  box-shadow: inset 0 -2px 0 transparent;
+}
+body.layout-top .chan:hover { background: var(--hover); }
+body.layout-top .chan.on {
+  background: var(--stage);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+body.layout-top.sel-fill .chan.on {
+  background: var(--accent-soft);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+body.layout-top .chan.on::before { display: none; }
+body.layout-top .chan .av-img { width: 22px; height: 22px; border-radius: 6px; }
+body.layout-top .chan .av-live, body.layout-top .chan .av-focus {
+  width: 8px; height: 8px; box-shadow: 0 0 0 2px var(--bg);
+}
+body.layout-top .chan-tag { display: none; }
+body.layout-top .chan-name { max-width: 150px; font-size: 12.5px; }
+body.layout-top .unread { margin-left: 2px; }
+
+/* A hairline rule instead of a word: the label ate horizontal space and
+   sat on a different baseline to the tabs. */
+body.layout-top .rail-section {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 1px;
+  min-width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--edge);
+  text-indent: -999px;
+}
+
+
+/* ══ Chat must scroll ═════════════════════════════════════════════
+   A rewrite dropped overflow from this rule, so the list grew past its
+   box instead of scrolling — messages ran underneath the quick actions
+   and the message box. A flex child also needs min-height:0 or it
+   refuses to shrink below its content. */
+#messages {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#chat-body { min-height: 0; }
+#stage { min-height: 0; }
+
+/* ══ Background transparency ══════════════════════════════════════ */
+html, body { background: transparent; }
+#root {
+  height: 100%;
+  background: color-mix(in srgb, var(--bg) calc(var(--bg-alpha) * 100%), transparent);
+}
+/* ══ Panels arrive instead of appearing ═══════════════════════════ */
+@keyframes panel-in {
+  from { transform: translateX(14px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+@keyframes modal-in {
+  from { transform: translate(-50%, -50%) scale(0.97); opacity: 0; }
+  to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rail-in {
+  from { transform: translateX(-100%); }
+  to   { transform: none; }
+}
+
+.panel:not([hidden]) { animation: panel-in 0.16s ease-out; }
+.modal:not([hidden]) { animation: modal-in 0.16s ease-out; }
+#scrim:not([hidden]), #rail-scrim:not([hidden]) { animation: fade-in 0.16s ease-out; }
+.dd-menu { animation: fade-in 0.12s ease-out; }
+body.layout-chat.rail-open #rail { animation: rail-in 0.2s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel:not([hidden]), .modal:not([hidden]), #scrim:not([hidden]),
+  #rail-scrim:not([hidden]), .dd-menu, body.layout-chat.rail-open #rail { animation: none; }
+}
+
+/* ══ Stacked: the stage meets the tab strip ═══════════════════════
+   Square the top-left only while the leftmost tab is the open one, so
+   that tab merges cleanly into the panel. With any other tab active the
+   corner has no tab against it and stays rounded. */
+body.layout-top #stage { border-radius: 12px; }
+body.layout-top.first-tab-active #stage { border-radius: 0 12px 12px 12px; }
+
+@keyframes modal-out {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to   { transform: translate(-50%, -50%) scale(0.97); opacity: 0; }
+}
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes rail-out { from { transform: none; } to { transform: translateX(-100%); } }
+
+.panel.closing { animation: panel-out 0.15s ease-in forwards; }
+.modal.closing { animation: modal-out 0.15s ease-in forwards; }
+#scrim.closing, #rail-scrim.closing { animation: fade-out 0.15s ease-in forwards; }
+body.layout-chat.rail-closing #rail { animation: rail-out 0.18s ease-in forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel.closing, .modal.closing, #scrim.closing, #rail-scrim.closing,
+  body.layout-chat.rail-closing #rail { animation: none; }
+}
+
+/* Hovering the leftmost tab previews the join it would make. */
+body.layout-top:has(#channel-list .chan:first-child:hover) #stage {
+  border-radius: 0 12px 12px 12px;
+}
+
+
+/* ══ Transparency: the chat panel, not the whole widget ═══════════ */
+#root { background: var(--bg); }
+#stage {
+  background: color-mix(in srgb, var(--stage) calc(var(--stage-alpha) * 100%), transparent);
+}
+
+/* ══ Tooltip ══════════════════════════════════════════════════════
+   Lives on <body>, so nothing can clip or trap it. */
+.pref-tip {
+  position: fixed;
+  z-index: 60;
+  max-width: min(300px, calc(100vw - 20px));
+  width: max-content;
+  padding: 11px 13px;
+  background: #23232b;
+  border-radius: 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.55;
+  text-align: left;
+  white-space: normal;
+  opacity: 1;
+  pointer-events: none;
+  animation: fade-in 0.12s ease-out;
+}
+
+/* ══ Inline mod buttons: centred on the first text line ═══════════
+   The buttons are taller than a line of chat, so leading the row they
+   sat visually high against the name. Sizing their box to exactly one
+   text line and letting the buttons overflow it symmetrically centres
+   them on that line no matter how many lines the message wraps to. */
+.msg-actions { align-items: center; height: calc(var(--msg-size) * 1.5); }
+body.compact .msg-actions { height: calc(var(--msg-size) * 1.3); }
+
+/* ══ Header channel switcher ══════════════════════════════════════ */
+.chat-viewers {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+.title-chev { flex: 0 0 auto; width: 14px; height: 14px; color: var(--faint); }
+.chat-title.switcher {
+  cursor: pointer;
+  padding: 5px 9px;
+  margin: -5px -9px -5px -4px;
+  border-radius: 9px;
+  transition: background 0.12s;
+}
+.chat-title.switcher:hover { background: var(--hover); }
+.chat-title.switcher:hover .title-chev { color: var(--dim); }
+.chat-title.switcher:active { background: var(--hover); }
+
+.chan-menu {
+  position: fixed;
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px;
+  min-width: 230px;
+  max-width: min(320px, calc(100vw - 20px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #1e1e24;
+  border-radius: 11px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6);
+  animation: fade-in 0.12s ease-out;
+}
+.chan-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: var(--ctl-min);
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dim);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+}
+.chan-item { position: relative; }
+.chan-item:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+/* Selected: a short accent bar on the left over a neutral dark fill —
+   quieter than an outline, and it reads at a glance in a long list. */
+.chan-item.on {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+.chan-item.on::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+.chan-item .ci-av {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+.chan-item .ci-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ci-live {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+.ci-live::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bad);
+}
+
+/* ══ Jump to latest ═══════════════════════════════════════════════
+   Sits over the bottom of whichever list you scrolled up in. */
+#chat-body { position: relative; }
+.pane { position: relative; }
+.jump-latest {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+  animation: fade-in 0.12s ease-out;
+}
+.jump-latest:hover { background: var(--accent); filter: brightness(1.1); }
+.jump-latest svg { width: 13px; height: 13px; }
+
+/* ══ Emote suggestions ════════════════════════════════════════════ */
+#composer { position: relative; }
+.emote-pop {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(100% - 2px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 5px;
+  border-radius: 11px;
+  background: #1e1e24;
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.6);
+  animation: fade-in 0.1s ease-out;
+}
+.ep-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 9px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.ep-item.on { background: rgba(255, 255, 255, 0.08); }
+.ep-item img { width: 26px; height: 26px; object-fit: contain; flex: 0 0 auto; }
+.ep-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ep-src { flex: 0 0 auto; font-size: 10px; font-weight: 700; color: var(--faint); text-transform: uppercase; }
+
+/* Pinned marker in the channel dropdown. */
+.ci-pin { flex: 0 0 auto; display: inline-flex; color: var(--faint); }
+.ci-pin svg { width: 12px; height: 12px; }
+
+/* Multi-toggle chip set (header buttons). */
+.chip-set { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--faint);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.chip:hover { background: rgba(255, 255, 255, 0.1); color: var(--dim); }
+.chip svg { width: 13px; height: 13px; flex: 0 0 auto; }
+.chip.on { background: var(--accent); color: #fff; }
+
+/* Section labels and layout rows inside the multi-chat menu. */
+.menu-head {
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ci-lay { width: 16px; height: 16px; flex: 0 0 auto; color: var(--faint); }
+/* Renaming a layout happens in the row itself. */
+.chan-item .ci-rename,
+.chan-item input[type="text"].ci-rename,
+.chan-item input[type="text"].ci-rename:focus {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.09);
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.chip.on:hover { background: var(--accent); filter: brightness(1.08); }
+
+/* ══ Drag and drop ════════════════════════════════════════════════
+   Dragging a channel into the chats, or a pane onto another to reorder. */
+.drag-ghost {
+  position: fixed;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 7px 7px;
+  border-radius: 10px;
+  background: #26262d;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -140%);
+  opacity: 0.96;
+}
+.drag-ghost .dg-av {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+/* No text selection or long-press menus while dragging. */
+body.dragging { user-select: none; -webkit-user-select: none; }
+body.dragging * { cursor: grabbing !important; }
+
+/* The pane being carried reads as lifted out of the layout. */
+.pane.dragging-pane { opacity: 0.32; }
+
+/* Dragging a channel over a single chat splits it live: the chat gives
+   up its right half so the incoming one has somewhere to land. */
+body.drag-preview #messages { flex: 0 0 calc(50% - 4px); }
+body.drag-preview #messages,
+#split-grid { transition: flex-basis 0.14s ease, grid-template-columns 0.14s ease; }
+
+
+/* The ghost: an outline of the pane about to exist, snapped over the
+   slot it would take, carrying the channel it belongs to. */
+/* A translucent copy of the pane about to exist, sitting in the slot it
+   will take — the real header and the real chat, faded, so the drop
+   previews the result instead of describing it. */
+/* An outlined space rather than a copy of the pane: a dashed accent
+   border over a faint accent wash, with the channel named in the middle. */
+.drop-ghost {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: 2px dashed color-mix(in srgb, var(--accent) 80%, transparent);
+  background: color-mix(in srgb, var(--accent) 11%, transparent);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  pointer-events: none;
+  /* Snapping between slots rather than jumping reads as one object. */
+  transition: left 0.13s ease, top 0.13s ease, width 0.13s ease, height 0.13s ease;
+  animation: fade-in 0.1s ease-out;
+}
+.drop-ghost .dgh-av {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+
+/* Nothing will happen on release: no accent (which promises a new pane),
+   a solid edge rather than the dashed "space for you" outline, and a
+   line saying why. Red is right here — this is a refusal, not a
+   confirmation waiting on a second tap. */
+.drop-ghost.blocked {
+  gap: 4px;
+  border-style: solid;
+  border-color: rgba(239, 68, 68, 0.75);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ff8a8a;
+}
+.drop-ghost.blocked .dgh-av { opacity: 0.65; }
+.dgh-note {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.95;
+}
+#split-grid.drop-on, #stage.drop-on { border-radius: 12px; }
+
+/* ══ Chat search ══════════════════════════════════════════════════
+   An icon until asked for, then a field that grows out of it. */
+.search-pop {
+  position: fixed;
+  z-index: 56;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, calc(100vw - 20px));
+  max-height: min(420px, calc(100vh - 90px));
+  padding: 5px;
+  border-radius: 11px;
+  background: #1e1e24;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6);
+  animation: fade-in 0.12s ease-out;
+}
+.sp-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-height: var(--ctl-min);
+  padding: 0 4px 0 8px;
+}
+.sp-field .cs-ico { width: 14px; height: 14px; stroke: var(--faint); flex: 0 0 auto; }
+/* The field is the popover — a second filled box inside it just looked
+   like a box in a box, focused or not. */
+.sp-field input,
+.sp-field input[type="text"],
+.sp-field input[type="text"]:focus {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 60px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  outline: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+}
+.sp-field input::placeholder { color: var(--faint); font-family: inherit; }
+.sp-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+}
+.sp-results:empty { display: none; }
+.sp-note {
+  padding: 9px 10px;
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 600;
+}
+.cs-count {
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.cs-count.empty { color: #ef9b00; }
+.cs-x {
+  flex: 0 0 auto;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 5px;
+  border-radius: 7px;
+  background: none;
+  color: var(--faint);
+}
+.cs-x:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.cs-x svg { width: 13px; height: 13px; }
+
+/* Rows the search filtered out. */
+.nomatch { display: none !important; }
+
+/* ══ Stacking order ═══════════════════════════════════════════════
+   The Chat-layout rail is a drawer at z-index 7, which left dialogs
+   (6) underneath it — open the rail, open Preferences, and the rail
+   covered it. Dialogs and their scrim belong above the whole stage;
+   the popovers and drag ghosts stay above everything. */
+#scrim { z-index: 28; }
+.modal, .panel { z-index: 30; }
+
+/* With several chats open, the composer names its target. */
+.send-target {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  padding: 5px 8px 5px 5px;
+  border-radius: 9px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--dim);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.send-target:hover { background: rgba(255, 255, 255, 0.12); color: var(--text); }
+.send-target .st-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.send-target .st-chev { width: 12px; height: 12px; color: var(--faint); flex: 0 0 auto; }
+.send-target .st-av {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+
+/* ══ Split view ═══════════════════════════════════════════════════
+   Up to four chats side by side. Columns, because the EDGE is wide and
+   short. The focused pane feeds the composer and quick actions. */
+#split-grid {
+  flex: 1 1 auto;
+  display: grid;
+  /* Panes pack into as many columns as genuinely fit, wrapping to rows
+     when they don't — 4-up on a full-width EDGE, 2x2 on a half tile,
+     a vertical stack in portrait. */
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+  padding: 10px 12px 4px;
+}
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.pane-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  border-radius: 10px 10px 0 0;
+}
+.pane-head:hover { background: rgba(255, 255, 255, 0.03); }
+.pane-av {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--panel-2);
+}
+.pane-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Live viewers for each chat in the split. */
+.pane-live {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+.pane-live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bad);
+}
+.pane-live[hidden] { display: none; }
+
+/* "replaces X" on a ghost taking over an occupied slot. */
+.dgh-swap {
+  flex: 0 0 auto;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent) 60%, #fff);
+}
+
+.pane-x {
+  flex: 0 0 auto;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 4px;
+  border-radius: 7px;
+  background: none;
+  color: var(--faint);
+}
+.pane-x:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.pane-x svg { width: 13px; height: 13px; }
+/* The focused pane wears the same mark as a selected channel. */
+.pane.on .pane-name { color: var(--text); }
+.pane.on .pane-head::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+.pane-list {
+  flex: 1 1 auto;
+  list-style: none;
+  margin: 0;
+  padding: 6px 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+.pane-list .msg { padding: 4px 8px; }
+
+/* Stream Together: where a shared-chat message came from. */
+.shared-tag {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Split toggle inside the channel dropdown. */
+.ci-split {
+  flex: 0 0 auto;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 5px;
+  border-radius: 7px;
+  background: none;
+  color: var(--faint);
+}
+.ci-split:hover { background: rgba(255, 255, 255, 0.08); color: var(--text); }
+.ci-split.on { color: var(--accent); }
+.ci-split svg { width: 14px; height: 14px; }
+
+/* ══ Size adaptation ══════════════════════════════════════════════
+   Tile sizes and orientations vary; the width classes come from
+   applySize(). Narrow: the rail and viewer list give up width before
+   the chat does. Tiny: effectiveLayout() already forces the Chat
+   arrangement, so the rail is a drawer and needs no width at all. */
+body.w-narrow { --rail: 168px; }
+body.w-narrow .chan-tag { display: none; }
+body.w-narrow #viewers { flex-basis: 142px; }
+/* #chat-modes is also the header's flex spacer — hide only its chips,
+   or the controls drift left. */
+body.w-narrow #chat-modes .mode-chip { display: none; }
+/* Only when there is truly no room do the labels go. */
+body.w-tiny .qa-label { display: none; }
+body.qa-nolabels .qa-label { display: none; }
+
+/* Tiny: every horizontal pixel goes to the channel name. */
+body.w-tiny .chat-viewers { display: none; }
+body.w-tiny #head-controls { gap: 2px; }
+body.w-tiny #chat-name { font-size: 13.5px; }
+body.w-tiny .conn { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Portrait: give chat the vertical room — trim chrome the same way the
+   short-screen pass does horizontally. */
+body.portrait #viewers { flex-basis: 132px; }
+body.portrait.layout-side { --rail: 168px; }
+
+/* ══ Scrolling without visible bars ═══════════════════════════════
+   Hiding the track must not remove the gesture. */
+#messages, #viewer-list, #prefs-body, .panel { touch-action: pan-y; }
+body.layout-top #channel-list { touch-action: pan-x; overflow-x: auto; overflow-y: hidden; }
+body.layout-side #channel-list, body.layout-chat #channel-list { touch-action: pan-y; }
+
+
+/* ══ Dashboard: stats, activity, quick-action tiles ═══════════════
+   A column beside the chat in Everything mode, styled like the viewer
+   list so the two read as one family. When this copy of the widget is
+   set to a single job, the same column fills the stage instead. */
+#dash {
+  flex: 0 0 var(--dash, 312px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  margin: 8px 8px 8px 0;
+  border-radius: 12px;
+  border-left: 1px solid var(--edge-soft);
+  background: rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+body.layout-top #dash, body.layout-chat #dash { margin: 8px; }
+body.w-narrow #dash { --dash: 248px; }
+body.w-tiny.mode-full #dash { display: none; }
+
+.dash-sec { display: flex; flex-direction: column; min-height: 0; }
+/* Stats and tiles size to their content but give way to the feed on a
+   short placement, scrolling rather than clipping what's below them. */
+#dash-stats, #dash-actions { flex: 0 1 auto; min-height: 92px; max-height: 46%; overflow-y: auto; }
+#dash-feed { flex: 1 1 auto; min-height: 110px; }
+/* Without a feed, the tiles take the remaining height. */
+#dash-feed[hidden] ~ #dash-actions { max-height: none; flex: 1 1 auto; }
+body.h-short .stats-grid { grid-template-columns: repeat(auto-fill, minmax(98px, 1fr)); gap: 5px; }
+body.h-short .stat { padding: 7px 9px; gap: 2px; }
+body.h-short .stat-v { font-size: 17px; }
+.dash-head { padding: 12px 12px 8px; }
+
+/* Single-job widgets: no chat surface at all, the section takes the stage. */
+body.solo #messages, body.solo #split-grid, body.solo #viewers, body.solo #jump-latest,
+body.solo #quick-actions, body.solo #action-bar, body.solo #composer, body.solo #confirm-bar,
+body.solo #automod { display: none !important; }
+body.solo #dash {
+  flex: 1 1 auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+body.solo .dash-head { display: none; }
+body.solo #dash-actions { max-height: none; flex: 1 1 auto; }
+body.solo #dash-stats { flex: 1 1 auto; overflow-y: auto; }
+
+/* ── Stats ─────────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 6px;
+  padding: 0 10px 10px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: var(--field);
+}
+.stat-k {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.stat-k svg { width: 12px; height: 12px; flex: 0 0 auto; }
+.stat-v {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stat-s { font-size: 11px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat.live .stat-v { color: #ff6b6b; }
+.stat.live .stat-k { color: #ff8a8a; }
+.stat-wide { grid-column: 1 / -1; }
+.stat.text .stat-v { font-size: 13px; font-weight: 600; letter-spacing: 0; white-space: normal; line-height: 1.35; }
+.stat-uptime { font-family: Consolas, "Cascadia Mono", monospace; color: var(--text); }
+
+body.mode-stats .stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  padding: 12px;
+  align-content: start;
+}
+body.mode-stats .stat { padding: 16px 18px; gap: 6px; border-radius: 14px; }
+body.mode-stats .stat-k { font-size: 11px; }
+body.mode-stats .stat-v { font-size: 34px; }
+body.mode-stats .stat.text .stat-v { font-size: 16px; }
+body.mode-stats .stat-s { font-size: 12.5px; }
+body.mode-stats.h-short .stat { padding: 11px 14px; }
+body.mode-stats.h-short .stat-v { font-size: 26px; }
+
+/* ── Activity feed ─────────────────────────────────────────────── */
+.feed-filters {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 5px;
+  padding: 0 10px 8px;
+  overflow-x: auto;
+}
+/* Filter buttons: squared-off, an icon each, same family as the
+   quick-action chips. */
+.ff {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--dim);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.ff svg { width: 13px; height: 13px; flex: 0 0 auto; }
+.ff:hover { background: #26262c; color: var(--text); }
+.ff.on { background: var(--accent); color: #fff; }
+.ff.on:hover { background: var(--accent); filter: brightness(1.08); }
+body.mode-feed .ff { padding: 9px 14px; font-size: 12.5px; }
+body.mode-feed .ff svg { width: 15px; height: 15px; }
+@media (hover: none) {
+  .ff:hover { background: var(--field); color: var(--dim); }
+  .ff.on:hover { background: var(--accent); color: #fff; filter: none; }
+}
+
+/* ── Stats strip across the top of the chat ────────────────────── */
+#stats-strip {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  padding: 10px 12px 0;
+  overflow-x: auto;
+}
+body.solo #stats-strip { display: none !important; }
+.sp {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  background: var(--field);
+  color: var(--dim);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sp svg { width: 14px; height: 14px; flex: 0 0 auto; color: var(--faint); }
+.sp b { color: var(--text); font-weight: 700; font-variant-numeric: tabular-nums; }
+.sp .stat-uptime { font-family: Consolas, "Cascadia Mono", monospace; color: var(--text); }
+.sp.live { background: rgba(239, 68, 68, 0.12); color: #ff8a8a; }
+.sp.live b, .sp.live svg { color: #ff6b6b; }
+.sp.sess b { font-weight: 600; color: var(--dim); }
+body.h-short #stats-strip { padding-top: 8px; }
+body.h-short .sp { padding: 5px 9px; font-size: 11.5px; }
+
+/* ── Activity rows inside the chat ─────────────────────────────── */
+.feed-notice { display: flex; align-items: center; gap: 8px; }
+.feed-notice.tap { cursor: pointer; }
+.feed-notice .fi-ico { width: 22px; height: 22px; border-radius: 6px; }
+.feed-notice .fi-ico svg { width: 12px; height: 12px; }
+.feed-notice .notice-text b { font-weight: 700; }
+.feed-notice.fi-follow { border-left-color: #ff6b9a; background: rgba(255, 74, 128, 0.08); }
+.feed-notice.fi-follow .notice-text { color: #ff9ab8; }
+.feed-notice.fi-bits { border-left-color: #a78bfa; background: rgba(167, 139, 250, 0.09); }
+.feed-notice.fi-bits .notice-text { color: #c4b5fd; }
+.feed-notice.fi-live { border-left-color: #ff6b6b; background: rgba(239, 68, 68, 0.08); }
+.feed-notice.fi-live .notice-text { color: #ff8a8a; }
+.feed-notice.fi-offline { border-left-color: var(--faint); background: rgba(255, 255, 255, 0.03); }
+.feed-notice.fi-offline .notice-text { color: var(--faint); }
+
+/* Broadcaster chips in the bottom bar carry the same tint as the tiles. */
+.qa.bc { background: rgba(145, 70, 255, 0.09); }
+.qa.bc:hover { background: rgba(145, 70, 255, 0.18); color: var(--text); }
+#feed-list {
+  flex: 1 1 auto;
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 10px;
+  overflow-y: auto;
+  min-height: 0;
+  touch-action: pan-y;
+}
+.fi {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px;
+  border-radius: 9px;
+  transition: background 0.12s;
+}
+.fi.tap { cursor: pointer; }
+.fi.tap:hover, .fi.tap:active { background: var(--hover); }
+.fi-ico {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--dim);
+}
+.fi-ico svg { width: 14px; height: 14px; }
+.fi-follow .fi-ico   { color: #ff6b9a; background: rgba(255, 74, 128, 0.13); }
+.fi-sub .fi-ico      { color: #c6a8ff; background: var(--accent-soft); }
+.fi-gift .fi-ico     { color: #c6a8ff; background: var(--accent-soft); }
+.fi-bits .fi-ico     { color: #a78bfa; background: rgba(167, 139, 250, 0.14); }
+.fi-raid .fi-ico     { color: #ffb42e; background: rgba(239, 155, 0, 0.14); }
+.fi-live .fi-ico     { color: #ff6b6b; background: rgba(239, 68, 68, 0.14); }
+.fi-offline .fi-ico  { color: var(--faint); }
+.fi-announce .fi-ico { color: #4aa8ff; background: rgba(74, 168, 255, 0.13); }
+.fi-charity .fi-ico  { color: #5ad46a; background: rgba(16, 185, 129, 0.13); }
+.fi-body { flex: 1 1 auto; min-width: 0; font-size: 12.5px; line-height: 1.4; color: var(--dim); }
+.fi-body b { color: var(--text); font-weight: 700; }
+.fi-detail { font-size: 11px; color: var(--faint); }
+.fi-msg {
+  margin-top: 4px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+.fi-time {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  font-size: 10.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.feed-empty {
+  padding: 22px 14px;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.feed-empty b { display: block; margin-bottom: 4px; font-size: 13.5px; color: var(--dim); }
+.feed-note {
+  margin: 0 2px 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.09);
+  color: #f0c274;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+body.mode-feed .feed-filters { padding: 10px 12px 8px; }
+body.mode-feed #feed-list { padding: 0 12px 12px; }
+body.mode-feed .fi { padding: 10px; gap: 11px; }
+body.mode-feed .fi-ico { width: 34px; height: 34px; border-radius: 10px; }
+body.mode-feed .fi-ico svg { width: 17px; height: 17px; }
+body.mode-feed .fi-body { font-size: 13.5px; }
+body.mode-feed .fi-detail { font-size: 12px; }
+body.mode-feed .fi-time { font-size: 11.5px; }
+
+/* ── Quick action tiles ────────────────────────────────────────── */
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 6px;
+  padding: 0 10px 10px;
+}
+.grid-head {
+  grid-column: 1 / -1;
+  padding: 6px 2px 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.grid-head:first-child { padding-top: 0; }
+.grid-empty {
+  grid-column: 1 / -1;
+  padding: 14px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 70px;
+  min-width: 0;
+  padding: 10px 11px;
+  border-radius: 11px;
+  background: var(--field);
+  color: var(--dim);
+  text-align: left;
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: background 0.14s, color 0.14s;
+}
+.tile svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.tile-l { display: flex; flex-direction: column; gap: 1px; width: 100%; min-width: 0; }
+.tile-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-sub { font-size: 10.5px; font-weight: 600; color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile:hover { background: #26262c; color: var(--text); }
+.tile.on { background: var(--accent); color: #fff; }
+.tile.on .tile-sub { color: rgba(255, 255, 255, 0.72); }
+.tile.on:hover { background: var(--accent); filter: brightness(1.08); }
+.tile.bc { background: rgba(145, 70, 255, 0.09); }
+.tile.bc:hover { background: rgba(145, 70, 255, 0.18); color: var(--text); }
+.tile.danger { color: #ff8a8a; }
+.tile.danger:hover { background: rgba(239, 68, 68, 0.16); }
+.tile.armed { background: rgba(239, 155, 0, 0.18) !important; color: #ffb42e !important; }
+.tile.armed .tile-sub { color: #ffb42e; }
+.tile:disabled { opacity: 0.5; }
+.tile.open { box-shadow: inset 0 0 0 1px var(--accent); }
+
+body.mode-actions .action-grid {
+  grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+  gap: 10px;
+  padding: 12px;
+  align-content: start;
+}
+body.mode-actions .tile { min-height: 100px; padding: 14px 15px; font-size: 14.5px; border-radius: 14px; }
+body.mode-actions .tile svg { width: 24px; height: 24px; }
+body.mode-actions .tile-sub { font-size: 12px; }
+body.mode-actions.h-short .tile { min-height: 84px; padding: 11px 13px; }
+body.mode-actions .grid-head { font-size: 11px; padding-top: 8px; }
+.ad-menu { padding: 4px; }
+
+@media (hover: none) {
+  .tile:hover { background: var(--field); color: var(--dim); }
+  .tile.on:hover { background: var(--accent); color: #fff; filter: none; }
+  .tile.bc:hover { background: rgba(145, 70, 255, 0.09); color: var(--dim); }
+  .fi.tap:hover { background: none; }
+}
+
+/* ── Preferences: the role picker ──────────────────────────────── */
+.mode-seg { width: 100%; }
+.mode-seg .seg-btn { flex: 1 1 0; padding: 8px 4px; }
+.seg-btn:disabled { opacity: 0.6; cursor: default; }
+.pref-note { margin-top: 6px; font-size: 11.5px; color: var(--faint); line-height: 1.4; }
+
+/* ══ AutoMod queue ════════════════════════════════════════════════
+   A column beside the chat, the same shape as the viewer list. Each held
+   message is a card: who, why, the text with the flagged part marked, and
+   Allow / Deny at finger size. */
+#automod {
+  flex: 0 0 244px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin: 8px 8px 8px 0;
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+}
+body.layout-top #automod, body.layout-chat #automod { margin: 8px; }
+body.w-narrow #automod { flex-basis: 196px; }
+body.portrait #automod { flex-basis: 170px; }
+#automod-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 9px 10px;
+  overflow-y: auto;
+  min-height: 0;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.am-item {
+  padding: 9px 9px 8px;
+  margin-bottom: 7px;
+  border-radius: 9px;
+  background: var(--field);
+  box-shadow: inset 2px 0 0 var(--warn);
+}
+.am-item.done { opacity: 0.3; transition: opacity 0.25s; }
+.am-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  cursor: pointer;
+}
+.am-who { font-weight: 700; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.am-why { flex: 0 0 auto; font-size: 10.5px; font-weight: 600; color: #f0c274; white-space: nowrap; }
+.am-text {
+  margin: 5px 0 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--dim);
+  overflow-wrap: anywhere;
+}
+.am-mark { background: rgba(245, 158, 11, 0.22); color: #ffd68a; border-radius: 3px; padding: 0 2px; }
+.am-actions { display: flex; gap: 6px; }
+.am-actions button { flex: 1 1 0; min-height: var(--ctl-min); padding: 8px; font-size: 12.5px; font-weight: 700; }
+.am-actions button:disabled { opacity: 0.5; }
+.am-allow { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
+.am-allow:hover { background: rgba(16, 185, 129, 0.28); }
+.am-deny { background: rgba(239, 68, 68, 0.14); color: #ff8a8a; }
+.am-deny:hover { background: rgba(239, 68, 68, 0.26); }
+/* The in-chat line that says a message was held. Tap to open the queue. */
+.am-notice { border-left-color: var(--warn); background: rgba(245, 158, 11, 0.1); cursor: pointer; }
+.am-notice .notice-text { color: #f0c274; }
+/* Pending count on the header button. */
+#btn-automod { position: relative; }
+.btn-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--warn);
+  color: #1a1200;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 15px;
+  text-align: center;
+  pointer-events: none;
+}
+@media (hover: none) {
+  .am-allow:hover { background: rgba(16, 185, 129, 0.16); }
+  .am-deny:hover { background: rgba(239, 68, 68, 0.14); }
+}
+
+/* ══ Alerts: mentions and keywords ════════════════════════════════
+   A keyword hit is amber; a mention takes the accent, since it is the one
+   that is actually about you. Both survive hover, which otherwise paints
+   the row plain. */
+.msg.alert { background: rgba(245, 158, 11, 0.09); box-shadow: inset 3px 0 0 var(--warn); }
+.msg.alert-mention { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.msg.alert:hover, .msg.alert:active { background: rgba(245, 158, 11, 0.15); box-shadow: inset 3px 0 0 var(--warn); }
+.msg.alert-mention:hover, .msg.alert-mention:active { background: rgba(145, 70, 255, 0.24); box-shadow: inset 3px 0 0 var(--accent); }
+.msg.alert.deleted { box-shadow: none; }
+/* Preferences: a dropdown with a Test button beside it. */
+.pref-select { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.pref-select .dd { flex: 0 0 auto; min-width: 118px; }
+.pref-test { min-height: 0; }
+
+/* ══ Bars that wrap instead of squeezing ═══════════════════════════
+   One forced row of equal columns crushed the chips on a Medium or
+   Large tile until the labels went. Auto-fit keeps the single row while
+   it fits and folds onto a second row when it doesn't. The action chips
+   get a row of their own under the chat modes either way. */
+#quick-actions, #action-bar {
+  display: grid;
+  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 6px;
+  padding: 10px 12px 12px;
+}
+#quick-actions:not([hidden]) ~ #action-bar { padding-top: 0; }
+body.size-sm #quick-actions, body.size-sm #action-bar { grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); }
+body.size-lg #quick-actions, body.size-lg #action-bar { grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
+body.qa-nolabels #quick-actions, body.qa-nolabels #action-bar,
+body.w-tiny #quick-actions, body.w-tiny #action-bar { grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); }
+@media (max-height: 480px) {
+  #quick-actions, #action-bar { padding: 8px 9px 9px; }
+  #quick-actions:not([hidden]) ~ #action-bar { padding-top: 0; }
+}
+
+/* ══ Custom panels: a framed page of the user's own ════════════════ */
+#dash-custom { flex: 1 1 auto; min-height: 120px; }
+#custom-frame { flex: 1 1 auto; min-height: 0; display: flex; }
+.custom-iframe { flex: 1 1 auto; width: 100%; height: 100%; border: 0; background: transparent; }
+.custom-empty { padding: 18px 14px; font-size: 12.5px; line-height: 1.5; color: var(--faint); }
+.custom-empty b { display: block; margin-bottom: 4px; font-size: 13.5px; color: var(--dim); }
+/* Reload and open stay reachable even when the section is the whole widget. */
+body.solo #dash-custom .dash-head { display: flex; padding: 6px 8px 6px 12px; }
+.dh-btn {
+  flex: 0 0 auto;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--faint);
+  letter-spacing: 0;
+}
+.dh-btn:hover { background: var(--panel-2); color: var(--text); }
+.dh-btn svg { width: 14px; height: 14px; }
+.side-head .dh-btn + .dh-btn { margin-left: -2px; }
+
+/* The editor in Preferences. */
+.panels { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+.panel-row { display: flex; align-items: center; gap: 7px; }
+.panel-row .panel-name, .panel-row input[type="text"].panel-name { flex: 0 0 128px; width: 128px; font-family: inherit; }
+.panel-row .panel-url, .panel-row input[type="text"].panel-url { flex: 1 1 auto; min-width: 0; font-size: 12px; }
+input[type="text"].bad, input[type="text"].bad:focus { box-shadow: inset 0 0 0 1px var(--bad); }
+.panel-pick { flex: 0 0 auto; min-width: 180px; max-width: 260px; }
+
+/* ══ Text size from iCUE's widget settings ═════════════════════════
+   Every size in this sheet is in pixels, so scaling text means scaling
+   regions: `zoom` on each area, with the overall multiplier folded in.
+   Only leaf regions are zoomed — never a container that positions a
+   popover by screen coordinates — and the few that are (the header's
+   search popover, the body-level menus) convert through zoomOf(). */
+:root { --fs: 1; --fs-chat: 1; --fs-chan: 1; --fs-ctl: 1; --fs-dash: 1; }
+#messages, .pane-list { zoom: calc(var(--fs) * var(--fs-chat)); }
+#rail, #chat-head, #chat-tabs { zoom: calc(var(--fs) * var(--fs-chan)); }
+#quick-actions, #action-bar, #composer, #confirm-bar, #action-grid { zoom: calc(var(--fs) * var(--fs-ctl)); }
+#dash-feed, #dash-stats, #stats-strip { zoom: calc(var(--fs) * var(--fs-dash)); }
+/* Overlays and menus follow the overall size alone. */
+.panel, .modal, .dd-menu, .chan-menu, .pref-tip, #toast, #viewers, #automod { zoom: var(--fs); }
+#view-auth { zoom: var(--fs); }

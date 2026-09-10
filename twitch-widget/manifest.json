@@ -1,0 +1,21 @@
+{
+  "author": "Teddy",
+  "id": "com.qaem.twitchmod.widget",
+  "name": "Twitchify",
+  "description": "Twitch mission control on your XENEON EDGE. Live chat with one-tap moderation across every channel you moderate, split view for up to four chats, an activity feed, quick-action tiles and stream stats. Add it more than once and give each copy a job.",
+  "version": "1.0.0",
+  "preview_icon": "resources/icon.svg",
+  "min_app_version": "5.45",
+  "min_framework_version": "1.0.0",
+  "interactive": true,
+  "os": [
+    {
+      "platform": "windows"
+    }
+  ],
+  "supported_devices": [
+    {
+      "type": "dashboard_lcd"
+    }
+  ]
+}

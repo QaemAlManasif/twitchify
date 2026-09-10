@@ -1,0 +1,6 @@
+bin/
+obj/
+publish/
+setup/bin/
+setup/obj/
+setup/publish/

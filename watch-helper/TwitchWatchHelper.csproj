@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>TwitchWatchHelper</AssemblyName>
+    <RootNamespace>TwitchWatchHelper</RootNamespace>
+    <Version>1.0.0</Version>
+    <Company>QAEM</Company>
+    <Product>Twitchify Watch Sync Helper</Product>
+    <Description>Background bridge between the Twitchify Watch Sync browser extension and the Twitchify iCUE widget for XENEON EDGE. Loopback only.</Description>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishTrimmed>true</PublishTrimmed>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The setup installer is its own project — keep it out of this one. -->
+    <Compile Remove="setup\**" />
+    <EmbeddedResource Remove="setup\**" />
+    <None Remove="setup\**" />
+    <Compile Remove="publish\**" />
+    <None Remove="publish\**" />
+  </ItemGroup>
+
+</Project>

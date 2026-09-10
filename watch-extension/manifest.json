@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Twitchify Watch Sync",
+  "version": "1.0.0",
+  "description": "Shows the chat of the Twitch channel you are watching on your XENEON EDGE, together with the Twitchify iCUE widget.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "*://*.twitch.tv/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Twitchify Watch Sync",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html"
+  }
+}
