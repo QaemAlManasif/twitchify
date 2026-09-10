@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twitchify Setup Guide — iCUE Widget for XENEON EDGE</title>
+  <meta name="description" content="How to set up Twitchify on your CORSAIR XENEON EDGE. Three steps, about two minutes, no developer keys.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0a0a0c;
+      --surface:   #131317;
+      --surface-2: #0e0e12;
+      --border:    #23232b;
+      --border-hi: #32323e;
+      --purple:    #9146ff;
+      --purple-2:  #772ce8;
+      --green:     #10b981;
+      --amber:     #f59e0b;
+      --red:       #ef4444;
+      --text:      #f2f2f4;
+      --muted:     #9b9ba4;
+      --dim:       #6c6c78;
+      --r-lg: 14px;
+      --r-md: 10px;
+      --r-sm: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.62;
+      padding: 0 20px 80px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: .88em;
+      color: #d6c6ff;
+    }
+
+    a { color: #c6a8ff; }
+
+    /* ---------- header ---------- */
+    header {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 26px 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; text-decoration: none; color: inherit; }
+    .brand-logo {
+      width: 38px; height: 38px;
+      background: #101010;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: grid; place-items: center;
+    }
+    .brand-logo svg { width: 23px; height: 23px; }
+    .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -.4px; }
+    .brand-name span { color: var(--purple); }
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 12.5px; font-weight: 600; color: var(--muted);
+    }
+    .dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+
+    main { max-width: 860px; margin: 0 auto; }
+
+    /* ---------- hero ---------- */
+    .hero { padding: 44px 0 36px; }
+    .hero h1 {
+      font-size: clamp(29px, 5vw, 40px);
+      font-weight: 800; letter-spacing: -1px; line-height: 1.18;
+      margin-bottom: 14px;
+    }
+    .hero h1 span { color: var(--purple); }
+    .hero p { font-size: 16.5px; color: var(--muted); max-width: 680px; }
+    .chips { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      font-size: 12.5px; font-weight: 600; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 100px; padding: 6px 14px;
+    }
+
+    /* ---------- sections ---------- */
+    .section { margin-bottom: 46px; }
+    .section-head { margin-bottom: 20px; padding-bottom: 13px; border-bottom: 1px solid var(--border); }
+    .section-head h2 { font-size: 24px; font-weight: 800; letter-spacing: -.5px; }
+    .section-head p { color: var(--muted); font-size: 14.5px; margin-top: 7px; }
+
+    /* ---------- prerequisites ---------- */
+    .req-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 720px) { .req-grid { grid-template-columns: 1fr 1fr; } }
+    .req {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 16px 18px;
+      display: flex; gap: 13px; align-items: flex-start;
+    }
+    .req .tick {
+      width: 20px; height: 20px; flex: none; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border-hi);
+      display: grid; place-items: center; font-size: 11px; color: var(--green);
+      margin-top: 3px;
+    }
+    .req h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 2px; }
+    .req p { font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+    /* ---------- steps ---------- */
+    .steps { display: flex; flex-direction: column; gap: 18px; }
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 26px 28px;
+    }
+    .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 13px; }
+    .step-number {
+      width: 32px; height: 32px; flex: none;
+      background: var(--surface-2); border: 1px solid var(--border-hi);
+      color: var(--purple); border-radius: 9px;
+      display: grid; place-items: center;
+      font-size: 13px; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .step-title { font-size: 18px; font-weight: 700; letter-spacing: -.3px; }
+    .step > p { color: var(--muted); font-size: 14.5px; }
+
+    .substeps { list-style: none; counter-reset: sub; margin: 14px 0 0; }
+    .substeps li {
+      counter-increment: sub;
+      position: relative;
+      padding-left: 32px;
+      color: var(--muted);
+      font-size: 14.5px;
+      margin-bottom: 10px;
+    }
+    .substeps li:last-child { margin-bottom: 0; }
+    .substeps li::before {
+      content: counter(sub);
+      position: absolute; left: 0; top: 1px;
+      width: 21px; height: 21px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 11px; font-weight: 700; color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .substeps li b, .step p b { color: var(--text); font-weight: 700; }
+
+    .action-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--r-md);
+      font-size: 14px; font-weight: 700; text-decoration: none;
+      cursor: pointer; border: none; font-family: inherit;
+      transition: background .15s ease;
+    }
+    .btn-primary { background: var(--purple); color: #fff; }
+    .btn-primary:hover { background: var(--purple-2); }
+    .btn-ghost {
+      background: var(--surface-2); color: var(--muted);
+      border: 1px solid var(--border-hi);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: var(--purple); }
+
+    .code-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 13px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; color: #d6c6ff;
+      margin: 14px 0 0;
+      overflow-x: auto;
+    }
+    .copy-btn {
+      background: var(--surface); border: 1px solid var(--border-hi);
+      color: var(--muted); border-radius: var(--r-sm);
+      padding: 6px 12px; font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; flex: none;
+      transition: background .15s ease, color .15s ease;
+    }
+    .copy-btn:hover { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+    /* ---------- role table ---------- */
+    .roles { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 4px; }
+    @media (min-width: 720px) { .roles { grid-template-columns: 1fr 1fr; } }
+    .role {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 14px 17px;
+    }
+    .role h4 { font-size: 14.5px; font-weight: 700; margin-bottom: 3px; display: flex; align-items: center; gap: 9px; }
+    .role h4 svg { width: 15px; height: 15px; flex: none; stroke: var(--purple); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .role p { font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+    /* ---------- callouts ---------- */
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--purple);
+      background: var(--surface-2);
+      border-radius: var(--r-sm);
+      padding: 13px 17px;
+      margin-top: 15px;
+      font-size: 13.8px;
+      color: var(--muted);
+    }
+    .callout b { color: var(--text); }
+    .callout.warn { border-left-color: var(--amber); }
+    .callout.good { border-left-color: var(--green); }
+    .callout.dang { border-left-color: var(--red); }
+    .callout-label {
+      display: block;
+      font-size: 10.5px; font-weight: 800; letter-spacing: .14em;
+      text-transform: uppercase; margin-bottom: 4px; color: var(--purple);
+    }
+    .callout.warn .callout-label { color: var(--amber); }
+    .callout.good .callout-label { color: var(--green); }
+    .callout.dang .callout-label { color: var(--red); }
+
+    /* ---------- troubleshooting ---------- */
+    details.tsh {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    details.tsh summary {
+      cursor: pointer; padding: 15px 19px;
+      font-size: 15px; font-weight: 700; color: var(--text);
+      list-style: none; display: flex; justify-content: space-between; gap: 16px; align-items: center;
+    }
+    details.tsh summary::-webkit-details-marker { display: none; }
+    details.tsh summary::after { content: '+'; color: var(--purple); font-size: 18px; font-weight: 700; flex: none; }
+    details.tsh[open] summary::after { content: '−'; }
+    details.tsh .tsh-body { padding: 0 19px 17px; font-size: 14px; color: var(--muted); }
+    details.tsh .tsh-body ul { margin: 8px 0 0 20px; }
+    details.tsh .tsh-body li { margin-bottom: 6px; }
+    details.tsh .tsh-body b { color: var(--text); }
+
+    footer {
+      max-width: 860px; margin: 60px auto 0;
+      text-align: center; font-size: 13px; color: var(--dim);
+      border-top: 1px solid var(--border); padding-top: 24px;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#top" class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 72 72" fill="none" aria-hidden="true">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M17 8 H38 V52 H34 L25 61 H17 V52 H8 V17 Z M26 21 a2.5 2.5 0 0 1 5 0 v8 a2.5 2.5 0 0 1 -5 0 z"
+            fill="#fff"/>
+          <circle cx="47" cy="34.5" r="5" fill="#fff"/>
+          <path d="M56 23 a16.5 16.5 0 0 1 0 23" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+          <path d="M61 16 a26 26 0 0 1 0 37" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="brand-name">Twitchify <span>Setup Guide</span></div>
+    </a>
+    <div class="header-badge">
+      <div class="dot"></div>
+      XENEON EDGE ready
+    </div>
+  </header>
+
+  <main id="top">
+
+    <div class="hero">
+      <h1>Twitch on your <span>XENEON EDGE</span>, in about two minutes</h1>
+      <p>
+        Import one file, place the widget, and approve a code on twitch.tv. There is no developer
+        console to visit, no Client ID to paste, and nothing to configure before it works.
+      </p>
+      <div class="chips">
+        <div class="chip">iCUE 5.45 or newer</div>
+        <div class="chip">Windows</div>
+        <div class="chip">No developer keys</div>
+        <div class="chip">No background app required</div>
+      </div>
+    </div>
+
+    <!-- ══════════ Before you start ══════════ -->
+    <section class="section">
+      <div class="section-head">
+        <h2>Before you start</h2>
+        <p>Four things, and you almost certainly have all of them already.</p>
+      </div>
+      <div class="req-grid">
+        <div class="req">
+          <div class="tick">✓</div>
+          <div>
+            <h4>A CORSAIR XENEON EDGE</h4>
+            <p>The touchscreen the widget runs on.</p>
+          </div>
+        </div>
+        <div class="req">
+          <div class="tick">✓</div>
+          <div>
+            <h4>iCUE 5.45 or newer</h4>
+            <p>Older builds cannot load the widget. Update from iCUE's own settings.</p>
+          </div>
+        </div>
+        <div class="req">
+          <div class="tick">✓</div>
+          <div>
+            <h4>A Twitch account</h4>
+            <p>Any account. You do not need to be a streamer or a moderator to read chat.</p>
+          </div>
+        </div>
+        <div class="req">
+          <div class="tick">✓</div>
+          <div>
+            <h4>Windows</h4>
+            <p>iCUE's widget support for the EDGE is Windows only.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ Setup ══════════ -->
+    <section class="section">
+      <div class="section-head">
+        <h2>Setup</h2>
+        <p>Three steps. Only the last one needs your attention.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-header">
+            <div class="step-number">1</div>
+            <div class="step-title">Download and import the widget</div>
+          </div>
+          <p>Grab <b>twitchify.icuewidget</b> from the releases page.</p>
+          <ol class="substeps">
+            <li>Download <code>twitchify.icuewidget</code>.</li>
+            <li>Double-click it. iCUE picks it up and imports it.</li>
+            <li>If nothing happens, open iCUE, go to the <b>Widgets</b> panel and use the <b>+</b> button, then choose the file.</li>
+          </ol>
+          <div class="action-row">
+            <a class="btn btn-primary" href="https://github.com/QaemAlManasif/twitchify/releases/latest" target="_blank" rel="noopener">Download from Releases</a>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header">
+            <div class="step-number">2</div>
+            <div class="step-title">Place it on your EDGE</div>
+          </div>
+          <p>Open your EDGE's layout in iCUE and drag <b>Twitchify</b> onto it.</p>
+          <ol class="substeps">
+            <li>Pick a size. <b>M</b> or <b>L</b> suits chat well; <b>XL</b> gives room for the dashboard column beside it.</li>
+            <li>The widget's own settings appear beside the layout, with <b>Widget type</b> at the top.</li>
+            <li>Leave the type on <b>Chosen in the widget</b> for now. You can change it any time.</li>
+          </ol>
+          <div class="callout">
+            <span class="callout-label">Tip</span>
+            You can place Twitchify more than once and give each copy a different job. See
+            <b>One widget, any job</b> below.
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header">
+            <div class="step-number">3</div>
+            <div class="step-title">Connect your Twitch account</div>
+          </div>
+          <p>On the EDGE, tap <b>Connect Twitch</b>. A short code appears.</p>
+          <ol class="substeps">
+            <li>Your browser opens <code>twitch.tv/activate</code> automatically. If it doesn't, tap <b>Copy link</b> and open it on your phone or PC.</li>
+            <li>Sign in to Twitch if you aren't already, and enter the code shown on the EDGE.</li>
+            <li>Approve the permissions. The widget picks it up on its own within a few seconds.</li>
+          </ol>
+          <div class="callout good">
+            <span class="callout-label">That's it</span>
+            Your own channel, every channel you moderate, and the channels you follow that are live
+            all appear in the list. Nothing else to configure.
+          </div>
+          <div class="callout">
+            <span class="callout-label">Why a code and not a password</span>
+            Twitchify never sees your Twitch password. Approval happens on Twitch's own site, and
+            the token it hands back is stored only on your PC.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════ One widget, any job ══════════ -->
+    <section class="section">
+      <div class="section-head">
+        <h2>One widget, any job</h2>
+        <p>Add Twitchify to the screen more than once and set <b>Widget type</b> on each copy in iCUE's settings.</p>
+      </div>
+      <div class="roles">
+        <div class="role">
+          <h4><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> Everything</h4>
+          <p>Chat plus a dashboard column. Each section can sit in the panel, as a strip across the top, or folded into the chat.</p>
+        </div>
+        <div class="role">
+          <h4><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a9 9 0 0 1 18 0z"/></svg> Chat and controls</h4>
+          <p>The chat on its own, with the moderation tools and the message box.</p>
+        </div>
+        <div class="role">
+          <h4><svg viewBox="0 0 24 24"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg> Activity feed</h4>
+          <p>Follows, subs, gifts, cheers and raids as they happen, with filters.</p>
+        </div>
+        <div class="role">
+          <h4><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> Stats</h4>
+          <p>Live status and uptime, viewers, followers, subscribers, chat pace, session totals.</p>
+        </div>
+        <div class="role">
+          <h4><svg viewBox="0 0 24 24"><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg> Quick actions</h4>
+          <p>Chat modes, Shield Mode, clip, marker, ad break and raid as large touch tiles.</p>
+        </div>
+        <div class="role">
+          <h4><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg> Custom panel</h4>
+          <p>Any embeddable link, the same kind you'd use as an OBS browser source. Paste it into <b>Custom panel link</b>.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <span class="callout-label">Good to know</span>
+        Every copy shares the sign-in, so you only connect once. Switch channel in one and the
+        others follow. Each copy keeps its own text size, set in iCUE's settings for that widget.
+      </div>
+    </section>
+
+    <!-- ══════════ Watch Sync ══════════ -->
+    <section class="section">
+      <div class="section-head">
+        <h2>Watch Sync <span style="color:var(--muted);font-weight:600;font-size:16px">— optional</span></h2>
+        <p>Shows the chat of whatever Twitch channel you have open in your browser, and can follow the tab you're watching. Skip this section if you don't want it — everything above works without it.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-header">
+            <div class="step-number">1</div>
+            <div class="step-title">Install the helper</div>
+          </div>
+          <p>Download and run <b>Twitchify-Watch-Sync-Setup.exe</b> from the same releases page.</p>
+          <div class="callout warn">
+            <span class="callout-label">SmartScreen will warn you</span>
+            The helper isn't code-signed yet, so Windows shows a blue "Windows protected your PC"
+            box. Choose <b>More info</b>, then <b>Run anyway</b>. If you'd rather not, the source
+            is public and you can build it yourself.
+          </div>
+          <div class="callout">
+            <span class="callout-label">What it does</span>
+            The helper is a small program with no window. It runs with iCUE — asleep until iCUE is
+            open, doing nothing otherwise — and passes channel names from your browser to the
+            widget. It is uninstalled from <b>Settings → Apps</b> like anything else.
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header">
+            <div class="step-number">2</div>
+            <div class="step-title">Add the browser extension</div>
+          </div>
+          <p>The store listings aren't live yet, so load it manually for now. It takes a minute.</p>
+          <ol class="substeps">
+            <li>Download <code>twitchify-watch-sync-chrome-1.0.0.zip</code> (or the Firefox one) and unzip it to a folder you'll keep.</li>
+            <li><b>Chrome, Edge, Brave, Opera:</b> open <code>chrome://extensions</code>, turn on <b>Developer mode</b>, click <b>Load unpacked</b> and pick that folder.</li>
+            <li><b>Firefox:</b> open <code>about:debugging#/runtime/this-firefox</code>, click <b>Load Temporary Add-on</b> and pick the <code>manifest.json</code> inside the folder.</li>
+          </ol>
+          <div class="callout warn">
+            <span class="callout-label">Firefox note</span>
+            A temporary add-on is removed when Firefox restarts. Reload it, or wait for the store listing.
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-header">
+            <div class="step-number">3</div>
+            <div class="step-title">Turn it on in the widget</div>
+          </div>
+          <ol class="substeps">
+            <li>On the EDGE, open <b>Preferences</b> (the sliders button in the header).</li>
+            <li>Turn on <b>Channels open in my browser</b>.</li>
+            <li>Optionally turn on <b>Follow the focused tab</b> so the chat switches with you.</li>
+          </ol>
+          <p style="margin-top:14px">
+            The <b>Connection</b> section at the top of Preferences shows Twitch, Helper and
+            Extension as three live indicators, so you can see exactly which piece isn't talking.
+          </p>
+          <div class="callout good">
+            <span class="callout-label">Privacy</span>
+            Only channel names travel, and only to <code>127.0.0.1</code> — your own PC. No page
+            content, no cookies, no messages, and nothing to any server.
+            <a href="https://github.com/QaemAlManasif/twitchify/blob/main/PRIVACY.md" target="_blank" rel="noopener">Full privacy policy</a>.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════ Troubleshooting ══════════ -->
+    <section class="section">
+      <div class="section-head">
+        <h2>If something doesn't work</h2>
+      </div>
+
+      <details class="tsh">
+        <summary>The code expired, or nothing happened after I approved it</summary>
+        <div class="tsh-body">
+          Codes are valid for a limited time. Tap <b>Cancel</b> and then <b>Connect Twitch</b> again
+          for a fresh one.
+          <ul>
+            <li>If the browser never opened, use <b>Copy link</b> and paste it somewhere yourself. Some hosts block a widget from opening links.</li>
+            <li>The code survives a reload, so if the widget restarted mid-sign-in it will still be waiting.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>It says "sign out and connect again"</summary>
+        <div class="tsh-body">
+          A feature is asking for a permission your sign-in predates. Twitch cannot add permissions
+          to a token that already exists, so the fix is a fresh sign-in.
+          <ul>
+            <li>Open <b>Preferences</b>, scroll to the bottom, tap <b>Sign out</b>, then connect again.</li>
+            <li>Nothing is lost — your layouts, pins and preferences are kept.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>I can't see the moderation buttons</summary>
+        <div class="tsh-body">
+          Moderation tools only appear in channels where you actually hold the powers.
+          <ul>
+            <li>In a channel you merely watch, tapping a message shows a note instead of buttons. That is expected.</li>
+            <li>Stream info, clip, marker, ad break and raid are for <b>your own channel only</b>.</li>
+            <li>If you were made a moderator recently, sign out and connect again so the list refreshes.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>Chat is empty, or says it can't read this chat</summary>
+        <div class="tsh-body">
+          <ul>
+            <li>Check the <b>Connection</b> indicators in Preferences. If Twitch isn't green, it's a network or sign-in problem, not the channel.</li>
+            <li>A channel with genuinely no messages since you opened it will look empty — the widget shows live chat, not history.</li>
+            <li>If it mentions authorization, sign out and connect again.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>Watch Sync says "helper offline"</summary>
+        <div class="tsh-body">
+          The widget cannot reach the helper on <code>127.0.0.1:57123</code>.
+          <ul>
+            <li>Make sure the installer has been run, and that <b>iCUE is open</b> — the helper sleeps when it isn't.</li>
+            <li>Preferences has a <b>Start helper</b> button beside the indicators. Tap it.</li>
+            <li>If a firewall is blocking loopback connections, allow <code>TwitchWatchHelper.exe</code>.</li>
+            <li>Still stuck? The log is at <code>%LOCALAPPDATA%\TwitchModeration\helper.log</code>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>The helper is running but the extension shows "not detected"</summary>
+        <div class="tsh-body">
+          <ul>
+            <li>Open the extension's popup from the browser toolbar. It reports whether it can see the helper.</li>
+            <li>The badge shows a number when channels are being shared. No number means no Twitch tabs are open, or it isn't talking.</li>
+            <li>Reload the extension from <code>chrome://extensions</code> and open a Twitch tab.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>A custom panel is blank</summary>
+        <div class="tsh-body">
+          Most ordinary web pages refuse to be embedded in another page, and the Twitch dashboard is
+          one of them. There is no way around it from outside.
+          <ul>
+            <li>Use links built for embedding — StreamElements or Streamlabs overlays, alert boxes, goal bars.</li>
+            <li>These are the same links you would paste into an OBS browser source.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="tsh">
+        <summary>The widget looks cramped, or text is too small</summary>
+        <div class="tsh-body">
+          <ul>
+            <li>In iCUE's settings for the placed widget there's a <b>Text size</b> group — an overall slider plus one for chat, the channel list, buttons and the dashboard.</li>
+            <li>Each copy of the widget has its own, so a Stats tile can run large while chat stays dense.</li>
+            <li>In Preferences, <b>Density</b> and <b>Button size</b> change how much fits on screen.</li>
+          </ul>
+        </div>
+      </details>
+
+    </section>
+
+  </main>
+
+  <footer>
+    Twitchify 1.0.0 &nbsp;·&nbsp;
+    <a href="https://github.com/QaemAlManasif/twitchify" target="_blank" rel="noopener">Source</a> &nbsp;·&nbsp;
+    <a href="https://github.com/QaemAlManasif/twitchify/releases/latest" target="_blank" rel="noopener">Releases</a> &nbsp;·&nbsp;
+    <a href="https://github.com/QaemAlManasif/twitchify/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privacy</a> &nbsp;·&nbsp;
+    <a href="https://github.com/QaemAlManasif/twitchify/issues" target="_blank" rel="noopener">Report an issue</a>
+  </footer>
+
+  <script>
+    for (const btn of document.querySelectorAll('.copy-btn')) {
+      btn.addEventListener('click', async () => {
+        const text = btn.parentElement.querySelector('span')?.textContent?.trim() || '';
+        try { await navigator.clipboard.writeText(text); } catch { return; }
+        const was = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = was; btn.classList.remove('copied'); }, 1600);
+      });
+    }
+  </script>
+
+</body>
+</html>

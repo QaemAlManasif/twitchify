@@ -15,6 +15,9 @@ Everything ships from [Releases](https://github.com/QaemAlManasif/twitchify/rele
 | `twitchify-watch-sync-chrome-1.0.0.zip` | Optional. The browser extension, until the store listing is live. |
 | `twitchify-watch-sync-firefox-1.0.0.zip` | Same, for Firefox. |
 
+**[Setup guide](https://qaemalmanasif.github.io/twitchify/setup-guide.html)** — three steps, about two
+minutes, plus the optional Watch Sync walkthrough and troubleshooting.
+
 Privacy policy: [PRIVACY.md](PRIVACY.md). Nothing here has a server — see it for the detail.
 
 ## Architecture
