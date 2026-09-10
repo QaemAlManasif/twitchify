@@ -270,8 +270,25 @@ Every preference in the widget's dialog is also declared as an `x-icue-property`
 panel iCUE shows for a placed widget carries the same Dashboard, Layout, Chat, Moderation
 and Appearance settings. `gen_mirror.py` generates those declarations and the panel groups
 from one table, and writes the matching `ICUE_MIRROR` table into `main.js`, so the two
-cannot drift — edit the table, re-run it. Three names are renamed on the way
-(`twAccent`, `twBackground`, `twTransparency`) because iCUE reserves the obvious ones.
+cannot drift — edit the table, re-run it.
+
+**Every mirrored property is namespaced `tw<Name>`, and that is not cosmetic.** iCUE
+injects one global `let` per meta parameter into the very scope `main.js` runs in, so a
+property whose name matches *any* top-level declaration in that file is a duplicate
+binding — a `SyntaxError` that stops the entire script from parsing. The widget still
+paints, because the HTML is static, but nothing is wired up: no event listeners, so the
+Connect button does nothing at all. It cannot be caught at runtime and it cannot be
+reproduced in a browser, because the collision only exists once iCUE has injected its
+globals. Two properties, `alertKeywords` and `alertSound`, collided with functions of the
+same name and did exactly this. `gen_mirror.py` now prefixes every generated name and
+**aborts** if one would still collide, so the class of bug is closed. The four names iCUE
+reserves for the screen's own personalisation (`accentColor`, `backgroundColor`,
+`textColor`, `transparency`) are the exception: they keep their names because iCUE fills
+them, and they are only ever read.
+
+To reproduce the iCUE host in a browser, inject the metas as real global `let`s in an
+inline `<script>` *before* `main.js` — a Playwright init script will not do, because it
+wraps the code in a function and the bindings never reach global scope.
 
 iCUE has no API to write a value back into its panel, so the two editors are reconciled
 by *diffing*, Deckord's approach: a property whose panel value moved since this copy last
