@@ -266,58 +266,44 @@ tell tabs apart) does the same.
 
 ### iCUE's own settings panel
 
-Every preference in the widget's dialog is also declared as an `x-icue-property`, so the
-panel iCUE shows for a placed widget carries the same Dashboard, Layout, Chat, Moderation
-and Appearance settings. `gen_mirror.py` generates those declarations and the panel groups
-from one table, and writes the matching `ICUE_MIRROR` table into `main.js`, so the two
-cannot drift — edit the table, re-run it.
+The panel is deliberately small: **two groups, eleven properties.** Twitchify (widget type
+and custom panel link) and Text size. Everything else lives in the widget's own
+Preferences, on the touchscreen.
 
-**Every mirrored property is namespaced `tw<Name>`, and that is not cosmetic.** iCUE
-injects one global `let` per meta parameter into the very scope `main.js` runs in, so a
-property whose name matches *any* top-level declaration in that file is a duplicate
-binding — a `SyntaxError` that stops the entire script from parsing. The widget still
-paints, because the HTML is static, but nothing is wired up: no event listeners, so the
-Connect button does nothing at all. It cannot be caught at runtime and it cannot be
-reproduced in a browser, because the collision only exists once iCUE has injected its
-globals. Two properties, `alertKeywords` and `alertSound`, collided with functions of the
-same name and did exactly this. `gen_mirror.py` now prefixes every generated name and
-**aborts** if one would still collide, so the class of bug is closed. The four names iCUE
-reserves for the screen's own personalisation (`accentColor`, `backgroundColor`,
-`textColor`, `transparency`) are the exception: they keep their names because iCUE fills
-them, and they are only ever read.
+It was once the opposite — all 45 preferences mirrored into the panel, in eight groups.
+Corsair's review rejected that: iCUE lays groups out horizontally and they ran off the
+screen. The mirror and its `gen_mirror.py` generator are gone. Only settings that are
+genuinely *per placed widget*, and so cannot live in the shared Preferences, belong here.
+
+**Colours come from iCUE's own Custom Style**, not from properties of ours. The four names
+iCUE reserves — `accentColor`, `backgroundColor`, `textColor`, `transparency` — are
+declared so they reach the widget, but kept out of the groups so they surface through
+iCUE's normal personalisation UI instead of a duplicate set of controls. They are only
+read, and each is applied only once it has moved off its declared default, so an untouched
+Custom Style leaves the widget's own Appearance preferences alone.
+
+**A property name must never match a top-level declaration in `main.js`.** iCUE injects
+one global `let` per meta parameter into the very scope the script runs in, so a clash is
+a duplicate binding — a `SyntaxError` that stops the entire file from parsing. The widget
+still paints, because the HTML is static, but nothing is wired up: no event listeners, so
+the Connect button does nothing at all. It cannot be caught at runtime and it cannot be
+reproduced in an ordinary browser, because the collision only exists once iCUE has
+injected its globals. Two properties, `alertKeywords` and `alertSound`, collided with the
+functions of the same name and did exactly this.
 
 To reproduce the iCUE host in a browser, inject the metas as real global `let`s in an
 inline `<script>` *before* `main.js` — a Playwright init script will not do, because it
-wraps the code in a function and the bindings never reach global scope.
-
-iCUE has no API to write a value back into its panel, so the two editors are reconciled
-by *diffing*, Deckord's approach: a property whose panel value moved since this copy last
-looked wins; everything else keeps what the dialog last set. The first look is the one
-refinement — the panel shows its declared defaults, which say nothing about what the user
-chose in the dialog before this update, so only values already moved off their default
-count as edits then. Preferences are shared across copies while the panel is per copy, so
-the "last seen" snapshot is per copy; the last edit anywhere wins and every copy follows.
-Not mirrored: the timeout buttons, the header-button set, the custom-panel list and the
-saved layouts, which are lists rather than single values.
-
-Besides those, the panel carries a **Text size** group and a **Colours** group, as
-Deckord's does. Both are per placed
-instance and read live — a Stats copy can run at 150% while the chat copy stays dense —
-and neither is duplicated in the widget's Preferences, so there is nothing to reconcile.
+wraps the code in a function and the bindings never reach global scope. That simulation is
+the only way any of this is testable off the device.
 
 Text size is an overall multiplier plus one per area (chat, channel list and header,
-buttons and tiles, feed and stats), stacking. Every size in the stylesheet is in pixels,
-so it is applied as **region `zoom`** rather than a font-size cascade. That has one
+buttons and message box, feed and stats), stacking. Every size in the stylesheet is in
+pixels, so it is applied as **region `zoom`** rather than a font-size cascade. That has one
 consequence worth knowing: `getBoundingClientRect()` answers in screen pixels while a
 zoomed element's own `left`/`top` are in its zoomed space, so everything placed by
 coordinates — the header's search popover, the body-level menus and the tooltip —
 converts through `zoomOf()`. Only leaf regions are zoomed for the per-area sliders;
 overlays and menus take the overall multiplier alone.
-
-*Follow iCUE screen colours* reads the four names iCUE reserves for the screen's own
-personalisation (`accentColor`, `backgroundColor`, `textColor`, `transparency`) — Deckord
-learned that any property using those names is overwritten by iCUE, so they are declared
-only to be read, and only override the Preferences colours while the switch is on.
 
 How iCUE hands values over, per Deckord's notes from the device: one global **`let`** per
 property (so `window[name]` never sees them; `icueProp()` reads through an indirect eval

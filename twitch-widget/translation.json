@@ -1,29 +1,27 @@
 {
   "en": {
     "translation": {
-      "Twitchify": "Twitchify",
-      "Widget type": "Widget type",
-      "Chosen in the widget": "Chosen in the widget",
-      "Everything": "Everything",
-      "Chat and controls": "Chat and controls",
+      "Accent": "Accent",
       "Activity feed": "Activity feed",
+      "Activity feed and stats": "Activity feed and stats",
+      "Add Twitchify more than once and give each copy a job. A custom panel link (an overlay or alert box made to be embedded, as in an OBS browser source) makes this copy show that page. Everything else is in the widget’s own Preferences, on the touchscreen.": "Add Twitchify more than once and give each copy a job. A custom panel link (an overlay or alert box made to be embedded, as in an OBS browser source) makes this copy show that page. Everything else is in the widget’s own Preferences, on the touchscreen.",
+      "Background": "Background",
+      "Buttons and message box": "Buttons and message box",
+      "Channel list and header": "Channel list and header",
+      "Chat and controls": "Chat and controls",
+      "Chat messages": "Chat messages",
+      "Chosen in the widget": "Chosen in the widget",
+      "Custom panel link": "Custom panel link",
+      "Everything": "Everything",
+      "Overall applies to everything; the others stack on top of it for one area each.": "Overall applies to everything; the others stack on top of it for one area each.",
       "Quick actions": "Quick actions",
       "Stats": "Stats",
-      "Custom panel link": "Custom panel link",
-      "Add Twitchify more than once and give each copy a job. A custom panel link (an overlay or alert box made to be embedded, as in an OBS browser source) makes this copy show that page.": "Add Twitchify more than once and give each copy a job. A custom panel link (an overlay or alert box made to be embedded, as in an OBS browser source) makes this copy show that page.",
+      "Text": "Text",
       "Text size": "Text size",
       "Text size (overall)": "Text size (overall)",
-      "Chat messages": "Chat messages",
-      "Channel list and header": "Channel list and header",
-      "Buttons, tiles and message box": "Buttons, tiles and message box",
-      "Activity feed and stats": "Activity feed and stats",
-      "Overall applies to everything; the others stack on top of it for one area each. Chat text has its own pixel size under Preferences as well.": "Overall applies to everything; the others stack on top of it for one area each. Chat text has its own pixel size under Preferences as well.",
-      "Colours": "Colours",
-      "Follow iCUE screen colours": "Follow iCUE screen colours",
-      "Accent (iCUE screen)": "Accent (iCUE screen)",
-      "Background (iCUE screen)": "Background (iCUE screen)",
-      "Transparency (iCUE screen)": "Transparency (iCUE screen)",
-      "On, the accent, background and transparency follow the colours set for this screen in iCUE instead of the ones chosen under Preferences.": "On, the accent, background and transparency follow the colours set for this screen in iCUE instead of the ones chosen under Preferences."
+      "Transparency": "Transparency",
+      "Twitchify": "Twitchify",
+      "Widget type": "Widget type"
     }
   }
 }
