@@ -3056,3 +3056,22 @@ input[type="text"].bad, input[type="text"].bad:focus { box-shadow: inset 0 0 0 1
 /* Overlays and menus follow the overall size alone. */
 .panel, .modal, .dd-menu, .chan-menu, .pref-tip, #toast, #viewers, #automod { zoom: var(--fs); }
 #view-auth { zoom: var(--fs); }
+
+/* ══ Sign-in QR ════════════════════════════════════════════════════
+   The scanner wants a light field and a quiet zone whatever the widget's
+   theme is, so the canvas paints its own white and sits in a light card. */
+.qr-wrap { display: flex; justify-content: center; margin: 2px 0 14px; }
+.qr {
+  display: block;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  image-rendering: pixelated;
+}
+.btn-row-quiet { margin-top: 14px; gap: 8px; }
+.btn-row-quiet button { flex: 1 1 auto; font-size: 12.5px; }
+/* A short widget has no room for both the QR and everything under it. */
+@media (max-height: 560px) {
+  .qr-wrap { margin: 0 0 10px; }
+  .qr { width: 132px !important; height: 132px !important; }
+}

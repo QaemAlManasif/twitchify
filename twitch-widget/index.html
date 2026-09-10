@@ -197,15 +197,18 @@
         </section>
 
         <section class="card center" id="stage-code" hidden="hidden">
-          <h2>Approve in your browser</h2>
-          <p class="lead">Twitch should have opened with the code already filled in.
-            If nothing happened, open it here.</p>
-          <div class="btn-row">
-            <button id="btn-open" class="primary">Open Twitch</button>
-            <button id="btn-copy">Copy link</button>
+          <h2>Scan to approve</h2>
+          <p class="lead">Point your phone's camera at the code. It opens Twitch with the
+            code already filled in.</p>
+          <div class="qr-wrap">
+            <canvas id="qr-code" class="qr" hidden="hidden"></canvas>
           </div>
           <p class="or">or go to <b id="verify-uri">twitch.tv/activate</b> and enter</p>
           <div class="code" id="user-code">————</div>
+          <div class="btn-row btn-row-quiet">
+            <button id="btn-verify-open" class="ghost">Open on this PC</button>
+            <button id="btn-copy" class="ghost">Copy link</button>
+          </div>
           <p class="status" id="code-status">Waiting for you to approve…</p>
           <button id="btn-cancel" class="ghost">Cancel</button>
         </section>

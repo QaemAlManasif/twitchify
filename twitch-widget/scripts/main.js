@@ -711,6 +711,333 @@ function toast(text, bad) {
   toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
 }
 
+// ══ QR code ═══════════════════════════════════════════════════════
+// The EDGE is a touchscreen with no browser of its own, and the iCUE
+// webview can refuse both to open an external link and to reach the
+// clipboard — so "Open Twitch" and "Copy link" are best-effort, not a
+// route we can rely on. A QR always works: point a phone at it.
+//
+// Self-contained byte-mode encoder, error correction level M, versions
+// 1-10. A verification URL is ~55 characters, well inside version 4.
+// No dependency and nothing fetched, which also keeps it working on a
+// machine with no route to the internet yet.
+const QR_BLOCKS = {          // version: [ec codewords per block, [[blocks, data codewords], …]]
+  1: [10, [[1, 16]]],
+  2: [16, [[1, 28]]],
+  3: [26, [[1, 44]]],
+  4: [18, [[2, 32]]],
+  5: [24, [[2, 43]]],
+  6: [16, [[4, 27]]],
+  7: [18, [[4, 31]]],
+  8: [22, [[2, 38], [2, 39]]],
+  9: [22, [[3, 36], [2, 37]]],
+  10: [26, [[4, 43], [1, 44]]],
+};
+const QR_ALIGN = {
+  1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30],
+  6: [6, 34], 7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50],
+};
+
+// GF(256), primitive polynomial 0x11d.
+const GF_EXP = new Uint8Array(512);
+const GF_LOG = new Uint8Array(256);
+(function () {
+  let x = 1;
+  for (let i = 0; i < 255; i++) {
+    GF_EXP[i] = x;
+    GF_LOG[x] = i;
+    x = (x << 1) ^ ((x & 0x80) ? 0x11d : 0);
+  }
+  for (let i = 255; i < 512; i++) GF_EXP[i] = GF_EXP[i - 255];
+})();
+const gfMul = (a, b) => (a && b ? GF_EXP[GF_LOG[a] + GF_LOG[b]] : 0);
+
+function rsDivisor(degree) {
+  const out = new Uint8Array(degree);
+  out[degree - 1] = 1;
+  let root = 1;
+  for (let i = 0; i < degree; i++) {
+    for (let j = 0; j < degree; j++) {
+      out[j] = gfMul(out[j], root);
+      if (j + 1 < degree) out[j] ^= out[j + 1];
+    }
+    root = gfMul(root, 2);
+  }
+  return out;
+}
+
+function rsRemainder(data, divisor) {
+  const out = new Uint8Array(divisor.length);
+  for (const b of data) {
+    const factor = b ^ out[0];
+    out.copyWithin(0, 1);
+    out[out.length - 1] = 0;
+    for (let i = 0; i < divisor.length; i++) out[i] ^= gfMul(divisor[i], factor);
+  }
+  return out;
+}
+
+// Text → the final interleaved codeword stream, plus the version it needs.
+function qrCodewords(text) {
+  const bytes = new TextEncoder().encode(text);
+  let version = 0;
+  let spec = null;
+  for (let v = 1; v <= 10; v++) {
+    const s = QR_BLOCKS[v];
+    const dataCw = s[1].reduce((n, [b, d]) => n + b * d, 0);
+    const ccBits = v < 10 ? 8 : 16;
+    if (4 + ccBits + bytes.length * 8 <= dataCw * 8) { version = v; spec = s; break; }
+  }
+  if (!version) return null;                 // longer than these tables cover
+
+  const [ecPerBlock, groups] = spec;
+  const dataCw = groups.reduce((n, [b, d]) => n + b * d, 0);
+
+  // Bit stream: mode 0100, character count, data, terminator, padding.
+  const bits = [];
+  const push = (value, len) => {
+    for (let i = len - 1; i >= 0; i--) bits.push((value >>> i) & 1);
+  };
+  push(0b0100, 4);
+  push(bytes.length, version < 10 ? 8 : 16);
+  for (const b of bytes) push(b, 8);
+  push(0, Math.min(4, dataCw * 8 - bits.length));
+  while (bits.length % 8 !== 0) bits.push(0);
+  const data = new Uint8Array(dataCw);
+  for (let i = 0; i < bits.length; i += 8) {
+    let byte = 0;
+    for (let j = 0; j < 8; j++) byte = (byte << 1) | bits[i + j];
+    data[i >>> 3] = byte;
+  }
+  for (let i = bits.length / 8, pad = 0; i < dataCw; i++, pad++) {
+    data[i] = pad % 2 === 0 ? 0xec : 0x11;
+  }
+
+  // Split into blocks, compute error correction, then interleave both.
+  const divisor = rsDivisor(ecPerBlock);
+  const dataBlocks = [];
+  const ecBlocks = [];
+  let at = 0;
+  for (const [count, len] of groups) {
+    for (let i = 0; i < count; i++) {
+      const block = data.subarray(at, at + len);
+      at += len;
+      dataBlocks.push(block);
+      ecBlocks.push(rsRemainder(block, divisor));
+    }
+  }
+  const out = [];
+  const longest = Math.max(...dataBlocks.map((b) => b.length));
+  for (let i = 0; i < longest; i++) {
+    for (const b of dataBlocks) if (i < b.length) out.push(b[i]);
+  }
+  for (let i = 0; i < ecPerBlock; i++) {
+    for (const b of ecBlocks) out.push(b[i]);
+  }
+  return { version, codewords: Uint8Array.from(out) };
+}
+
+const QR_MASKS = [
+  (x, y) => (x + y) % 2 === 0,
+  (x, y) => y % 2 === 0,
+  (x, y) => x % 3 === 0,
+  (x, y) => (x + y) % 3 === 0,
+  (x, y) => (Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0,
+  (x, y) => ((x * y) % 2) + ((x * y) % 3) === 0,
+  (x, y) => ((((x * y) % 2) + ((x * y) % 3)) % 2) === 0,
+  (x, y) => ((((x + y) % 2) + ((x * y) % 3)) % 2) === 0,
+];
+
+// The four penalty rules, used only to pick the mask that scans best.
+function qrPenalty(m, size) {
+  let score = 0;
+  const run = (get) => {
+    for (let a = 0; a < size; a++) {
+      let len = 1;
+      for (let b = 1; b < size; b++) {
+        if (get(a, b) === get(a, b - 1)) {
+          len++;
+          if (len === 5) score += 3;
+          else if (len > 5) score += 1;
+        } else len = 1;
+      }
+    }
+  };
+  run((y, x) => m[y][x]);
+  run((x, y) => m[y][x]);
+
+  for (let y = 0; y < size - 1; y++) {
+    for (let x = 0; x < size - 1; x++) {
+      const v = m[y][x];
+      if (v === m[y][x + 1] && v === m[y + 1][x] && v === m[y + 1][x + 1]) score += 3;
+    }
+  }
+
+  const bad = [1, 0, 1, 1, 1, 0, 1];
+  const looks = (get, a, b) => {
+    for (let i = 0; i < 7; i++) if (get(a, b + i) !== bad[i]) return false;
+    const before = [b - 4, b - 3, b - 2, b - 1].every((k) => k < 0 || get(a, k) === 0);
+    const after = [b + 7, b + 8, b + 9, b + 10].every((k) => k >= size || get(a, k) === 0);
+    return before || after;
+  };
+  for (let a = 0; a < size; a++) {
+    for (let b = 0; b + 7 <= size; b++) {
+      if (looks((y, x) => m[y][x], a, b)) score += 40;
+      if (looks((x, y) => m[y][x], a, b)) score += 40;
+    }
+  }
+
+  let dark = 0;
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) dark += m[y][x];
+  const pct = (dark * 100) / (size * size);
+  score += Math.floor(Math.abs(pct - 50) / 5) * 10;
+  return score;
+}
+
+function qrFormatBits(mask) {
+  const data = (0b00 << 3) | mask;          // 00 = error correction level M
+  let rem = data;
+  for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+  return ((data << 10) | rem) ^ 0x5412;
+}
+
+// Text → a size×size grid of 0/1, or null if it doesn't fit.
+function qrMatrix(text) {
+  const enc = qrCodewords(text);
+  if (!enc) return null;
+  const { version, codewords } = enc;
+  const size = version * 4 + 17;
+  const m = Array.from({ length: size }, () => new Array(size).fill(0));
+  const fixed = Array.from({ length: size }, () => new Array(size).fill(false));
+  const set = (x, y, on) => {
+    if (x < 0 || y < 0 || x >= size || y >= size) return;
+    m[y][x] = on ? 1 : 0;
+    fixed[y][x] = true;
+  };
+
+  // Finder patterns and their separators.
+  for (const [cx, cy] of [[0, 0], [size - 7, 0], [0, size - 7]]) {
+    for (let dy = -1; dy <= 7; dy++) {
+      for (let dx = -1; dx <= 7; dx++) {
+        const d = Math.max(Math.abs(dx - 3), Math.abs(dy - 3));
+        set(cx + dx, cy + dy, d !== 2 && d <= 3);
+      }
+    }
+  }
+  // Timing patterns.
+  for (let i = 8; i < size - 8; i++) {
+    set(i, 6, i % 2 === 0);
+    set(6, i, i % 2 === 0);
+  }
+  // Alignment patterns, skipping the finder corners.
+  const align = QR_ALIGN[version];
+  for (const ay of align) {
+    for (const ax of align) {
+      if ((ax <= 8 && ay <= 8) || (ax <= 8 && ay >= size - 9) || (ax >= size - 9 && ay <= 8)) continue;
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          set(ax + dx, ay + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+        }
+      }
+    }
+  }
+  // Reserve the format areas, and the version block on 7 and up. Row and
+  // column 6 belong to the timing patterns and are not format modules —
+  // reserving them there silently blanked two timing cells.
+  for (let i = 0; i <= 8; i++) {
+    if (i === 6) continue;
+    set(8, i, false);
+    set(i, 8, false);
+  }
+  for (let i = 0; i < 8; i++) { set(size - 1 - i, 8, false); set(8, size - 1 - i, false); }
+  if (version >= 7) {
+    let rem = version;
+    for (let i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1f25);
+    const bits = (version << 12) | rem;
+    for (let i = 0; i < 18; i++) {
+      const on = ((bits >>> i) & 1) === 1;
+      set(size - 11 + (i % 3), Math.floor(i / 3), on);
+      set(Math.floor(i / 3), size - 11 + (i % 3), on);
+    }
+  }
+
+  // Data, snaking up and down in two-module columns, skipping column 6.
+  let bit = 0;
+  const totalBits = codewords.length * 8;
+  for (let right = size - 1; right >= 1; right -= 2) {
+    if (right === 6) right = 5;
+    for (let step = 0; step < size; step++) {
+      for (let j = 0; j < 2; j++) {
+        const x = right - j;
+        const upward = ((right + 1) & 2) === 0;
+        const y = upward ? size - 1 - step : step;
+        if (fixed[y][x]) continue;
+        let on = false;
+        if (bit < totalBits) {
+          on = ((codewords[bit >>> 3] >>> (7 - (bit & 7))) & 1) === 1;
+          bit++;
+        }
+        m[y][x] = on ? 1 : 0;
+      }
+    }
+  }
+
+  // Try every mask, keep the one that scores best.
+  let best = null;
+  let bestScore = Infinity;
+  for (let mask = 0; mask < 8; mask++) {
+    const cand = m.map((row) => row.slice());
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        if (!fixed[y][x] && QR_MASKS[mask](x, y)) cand[y][x] ^= 1;
+      }
+    }
+    const fmt = qrFormatBits(mask);
+    const put = (x, y, on) => { cand[y][x] = on ? 1 : 0; };
+    for (let i = 0; i <= 5; i++) put(8, i, (fmt >>> i) & 1);
+    put(8, 7, (fmt >>> 6) & 1);
+    put(8, 8, (fmt >>> 7) & 1);
+    put(7, 8, (fmt >>> 8) & 1);
+    for (let i = 9; i < 15; i++) put(14 - i, 8, (fmt >>> i) & 1);
+    for (let i = 0; i < 8; i++) put(size - 1 - i, 8, (fmt >>> i) & 1);
+    for (let i = 8; i < 15; i++) put(8, size - 15 + i, (fmt >>> i) & 1);
+    put(8, size - 8, 1);                      // always dark
+
+    const score = qrPenalty(cand, size);
+    if (score < bestScore) { bestScore = score; best = cand; }
+  }
+  return best;
+}
+
+// Paint it onto a canvas, always light-on-dark-free: scanners want a
+// light background and a quiet zone, whatever the widget's theme is.
+function drawQr(canvas, text, px) {
+  const grid = qrMatrix(text);
+  if (!grid) { canvas.hidden = true; return false; }
+  const size = grid.length;
+  const quiet = 4;
+  const total = size + quiet * 2;
+  const scale = Math.max(1, Math.floor((px || 180) / total));
+  const dim = total * scale;
+  const ratio = Math.min(3, Math.ceil(window.devicePixelRatio || 1));
+  canvas.width = dim * ratio;
+  canvas.height = dim * ratio;
+  canvas.style.width = dim + "px";
+  canvas.style.height = dim + "px";
+  const g = canvas.getContext("2d");
+  g.setTransform(ratio, 0, 0, ratio, 0, 0);
+  g.fillStyle = "#fff";
+  g.fillRect(0, 0, dim, dim);
+  g.fillStyle = "#000";
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (grid[y][x]) g.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale);
+    }
+  }
+  canvas.hidden = false;
+  return true;
+}
+
 // ══ Sign in ════════════════════════════════════════════════════════
 // The pending device code is persisted, so an approval still lands if the
 // widget reloads mid-flow — which opening the verification link in an
@@ -772,6 +1099,9 @@ function showPending(p) {
   // you can't click, so show the bare host and let the big code carry it.
   $("verify-uri").textContent = p.verify.replace(/^https?:\/\/(www\.)?/, "").split("?")[0];
   $("user-code").textContent = p.user_code;
+  // The QR carries the code as a query parameter, so scanning it skips
+  // typing entirely — the one route that needs nothing of the host.
+  drawQr($("qr-code"), p.verify, 200);
   stage("code");
   setStatus("working", "Waiting for approval", "Approve on Twitch");
   setCodeStatus("", "Waiting for you to approve…");
@@ -783,7 +1113,7 @@ function autoOpen(p) {
   if (p.opened) return;
   p.opened = true;
   savePending(p);
-  openVerify();
+  openVerify(true);      // automatic, once per code
 }
 
 // Hand the URL to the OS default browser. A detached <a target="_blank">
@@ -791,8 +1121,17 @@ function autoOpen(p) {
 // whereas window.open can reload or navigate the widget itself. Either
 // way the buttons and the printed code stay on screen, so there is
 // always a way through.
-function openVerify() {
+// Best effort, and only that. A detached anchor is the gentlest way to
+// ask the host to hand a URL to the OS browser, but the iCUE webview may
+// simply ignore it, and there is no way to find out from in here —
+// nothing throws and nothing reports back. So try the anchor, then
+// window.open, and either way point at the QR, which needs none of this.
+// `silent` is the automatic attempt made once per code — it must not
+// overwrite "waiting for you to approve" with advice the user hasn't
+// asked for yet.
+function openVerify(silent) {
   if (!verifyUrl) return;
+  let asked = false;
   try {
     const a = document.createElement("a");
     a.href = verifyUrl;
@@ -802,7 +1141,18 @@ function openVerify() {
     document.body.appendChild(a);
     a.click();
     a.remove();
+    asked = true;
   } catch {}
+  if (!asked) {
+    try { asked = !!window.open(verifyUrl, "_blank", "noopener"); } catch {}
+  }
+  if (silent) return;
+  const btn = $("btn-verify-open");
+  const was = btn.textContent;
+  btn.textContent = "Opening…";
+  setTimeout(() => { btn.textContent = was; }, 1600);
+  setCodeStatus("", "If your browser didn't open, scan the code above or type it at "
+    + $("verify-uri").textContent + ".");
 }
 
 async function copyVerify() {
@@ -829,6 +1179,13 @@ async function copyVerify() {
   }
   btn.textContent = ok ? "Copied" : "Couldn't copy";
   setTimeout(() => { btn.textContent = "Copy link"; }, 1600);
+  // Both clipboard routes need permissions the webview may withhold. If
+  // neither worked, the QR is the answer — say so rather than leaving a
+  // button that looks broken.
+  if (!ok) {
+    setCodeStatus("", "Clipboard isn't available here — scan the code above, or type it at "
+      + $("verify-uri").textContent + ".");
+  }
 }
 
 function startPolling(p) {
@@ -6055,7 +6412,7 @@ function startDemo() {
 
 $("btn-flow").addEventListener("click", connect);
 $("btn-cancel").addEventListener("click", signOut);
-$("btn-open").addEventListener("click", openVerify);
+$("btn-verify-open").addEventListener("click", () => openVerify());
 $("btn-copy").addEventListener("click", copyVerify);
 let signOutArmed = null;
 $("btn-signout").addEventListener("click", () => {
