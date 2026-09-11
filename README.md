@@ -12,8 +12,8 @@ Everything ships from [Releases](https://github.com/QaemAlManasif/twitchify/rele
 | :-- | :-- |
 | `twitchify.icuewidget` | The widget. Import it in iCUE and place **Twitchify** on your EDGE. |
 | `Twitchify-Watch-Sync-Setup.exe` | Optional. Installs the Watch Sync helper — see [Watch sync](#watch-sync-optional-add-on). |
-| `twitchify-watch-sync-chrome-1.0.0.zip` | Optional. The browser extension, until the store listing is live. |
-| `twitchify-watch-sync-firefox-1.0.0.zip` | Same, for Firefox. |
+| `twitchify-watch-sync-chrome-1.0.1.zip` | Optional. The browser extension, until the store listing is live. |
+| `twitchify-watch-sync-firefox-1.0.1.zip` | Same, for Firefox. |
 
 **[Setup guide](https://qaemalmanasif.github.io/twitchify/setup-guide.html)** — three steps, about two
 minutes, plus the optional Watch Sync walkthrough and troubleshooting.

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Twitchify Watch Sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shows the chat of the Twitch channel you are watching on your XENEON EDGE, together with the Twitchify iCUE widget.",
   "icons": {
     "16": "icons/icon16.png",
